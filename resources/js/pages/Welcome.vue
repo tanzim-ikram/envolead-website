@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
+import Navbar from '@/components/Navbar.vue';
 </script>
 
 <template>
+  <div>
+    <Navbar />
+    <!-- Rest of your page sections go here -->
+  </div>
+
     <Head title="Welcome">
         <link rel="preconnect" href="https://rsms.me/" />
         <link rel="stylesheet" href="https://rsms.me/inter/inter.css" />
