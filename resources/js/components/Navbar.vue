@@ -12,7 +12,8 @@
         <li><a href="#about" class="hover:text-green-700">About</a></li>
         <li><a href="#projects" class="hover:text-green-700">Projects</a></li>
         <li><a href="#partners" class="hover:text-green-700">Partners</a></li>
-        <li><a href="#team" class="hover:text-green-700">Team</a></li>
+        <li><a href="#news" class="hover:text-green-700">News</a></li>
+        <li><a href="#events" class="hover:text-green-700">Events</a></li>
       </ul>
 
       <!-- Contact Button -->
