@@ -5,7 +5,7 @@
         <div class="absolute inset-0 bg-black opacity-50"></div>
 
         <!-- Content -->
-        <div class="relative z-10 max-w-2xl pl-[5%] mt-45">
+        <div class="relative z-10 max-w-2xl pl-[10%] mt-45">
             <h1 class="text-white text-4xl md:text-5xl font-bold leading-tight mb-6">
                 Working Together For <br />
                 Sustainable Solutions

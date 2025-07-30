@@ -1,9 +1,11 @@
 <template>
   <div class="sticky top-0 z-50 bg-white shadow-sm">
-    <nav class="flex justify-between items-center py-4 px-[5%]">
+    <nav class="flex justify-between items-center py-4 px-[10%]">
       <!-- Logo -->
       <div class="flex items-center gap-2">
-        <img src="/images/Envolead Logo.svg" alt="Envolead Logo" class="h-12.5" />
+        <a href="/">
+          <img src="/images/Envolead Logo.svg" alt="Envolead Logo" class="h-12.5" />
+        </a>
       </div>
 
       <!-- Navigation Links -->
@@ -19,7 +21,7 @@
       <!-- Contact Button -->
       <a
         href="#contact"
-        class="bg-green-800 text-white px-6 py-2 rounded-md font-bold text-sm tracking-wide uppercase hover:bg-green-900 transition"
+        class="bg-green-800 text-white px-6 py-3 rounded-md font-bold text-base tracking-wide uppercase hover:bg-green-900 transition"
       >
         Contact
       </a>
