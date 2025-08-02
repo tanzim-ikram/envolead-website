@@ -4,9 +4,6 @@
             <h1 class="text-5xl font-bold flex items-bottom text-neutral-900">
                 <span class="h-10 w-2 bg-green-700 mr-6"></span> About
             </h1>
-            <!-- <p class="text-lg text-left text-neutral-700 mb-12 font-semibold">
-                Our mission is to develop cutting-edge solutions that tackle the urgent climate challenges of our time.
-            </p> -->
         </div>
         <div class="mx-auto flex flex-col lg:flex-row items-start gap-30">
             <!-- Text Content -->
