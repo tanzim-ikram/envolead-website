@@ -1,8 +1,8 @@
 <template>
-    <section class="bg-[#e9f1ed] py-20 px-[10%]">
+    <section class="bg-[#e6f4ea] py-20 px-[10%]">
         <div class="text-center mb-16">
-            <h1 class="text-5xl font-bold flex items-bottom text-neutral-900">
-                <span class="h-10 w-2 bg-green-700 mr-6"></span> Projects
+            <h1 class="text-4xl font-bold flex items-bottom text-neutral-900">
+                <span class="h-8.5 w-1.5 bg-green-700 mr-5"></span> Projects
             </h1>
         </div>
 
