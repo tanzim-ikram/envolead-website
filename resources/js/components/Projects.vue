@@ -6,13 +6,18 @@
             </h1>
         </div>
 
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-10">
+        <div class="flex flex-wrap justify-center gap-8">
             <div v-for="(project, index) in displayedProjects" :key="index"
-                class="bg-white p-8 rounded-lg shadow hover:shadow-md text-center">
-                <img :src="project.icon" alt="Icon" class="mx-auto h-16 mb-4" />
-                <h3 class="font-bold text-xl text-green-800">{{ project.project_name }}</h3>
-                <p class="text-base text-neutral-700 mt-2">{{ project.short_description }}</p>
-                <a href="#" class="text-green-800 font-semibold text-sm mt-6 flex justify-center items-center hover:underline">
+                class="bg-white p-8 rounded-lg shadow hover:shadow-md text-center flex flex-col justify-between h-[350px] w-[280px]">
+                <div>
+                    <img :src="project.icon" alt="Icon" class="mx-auto h-16 mb-4" />
+                    <h3 class="font-bold text-xl text-green-800">{{ project.project_name }}</h3>
+                    <p class="text-base text-neutral-700 mt-2">
+                        {{ project.short_description }}
+                    </p>
+                </div>
+                <a href="#"
+                    class="text-green-800 font-semibold text-sm mt-4 flex justify-center items-center hover:underline">
                     View project details
                     <Icon icon="tabler:arrow-right" width="16" height="16" class="ml-1" />
                 </a>

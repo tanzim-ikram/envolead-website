@@ -13,12 +13,15 @@ Route::get('dashboard', function () {
 })->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::get('/', function () {
-    $projects = Project::all();
+    $projects = Project::whereNull('parent_id')
+        ->orderBy('sort_order')
+        ->get();
+
     return Inertia::render('Welcome', [
         'projects' => $projects
     ]);
 })->name('home');
 
 
-require __DIR__.'/settings.php';
-require __DIR__.'/auth.php';
+require __DIR__ . '/settings.php';
+require __DIR__ . '/auth.php';
