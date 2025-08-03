@@ -6,6 +6,7 @@ import AboutSection from '@/components/AboutSection.vue';
 import Projects from '@/components/Projects.vue';
 import YouthPartners from '@/components/YouthPartners.vue'
 import PartnersAndPatrons from '@/components/PartnersAndPatrons.vue';
+import Footer from '@/components/Footer.vue';
 
 const props = defineProps({
   clubPartners: Array,
@@ -22,6 +23,7 @@ const props = defineProps({
      <Projects :projects="projects" />
      <YouthPartners :clubPartners="clubPartners" />
      <PartnersAndPatrons :partners="props.companyPartners" />
+     <Footer />
   </div>
 
 </template>

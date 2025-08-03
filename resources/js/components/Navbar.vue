@@ -1,5 +1,5 @@
 <template>
-  <div class="sticky top-0 z-50 bg-gray-50 shadow-sm">
+  <div class="sticky top-0 z-50 bg-white shadow-sm">
     <nav class="flex justify-between items-center py-4 px-[10%]">
       <!-- Logo -->
       <div class="flex items-center gap-2">

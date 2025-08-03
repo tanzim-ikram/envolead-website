@@ -26,7 +26,7 @@
             :key="index"
             class="min-w-[150px] flex justify-center items-center px-4 shrink-0"
           >
-            <img :src="partner.logo" :alt="partner.partner_name" class="h-15 object-contain" />
+            <img :src="partner.logo" :alt="partner.partner_name" class="h-20 object-contain" />
           </div>
         </div>
       </div>

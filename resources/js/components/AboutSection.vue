@@ -1,5 +1,5 @@
 <template>
-    <section id="about" class="py-28 px-[10%] bg-gray-50">
+    <section id="about" class="py-28 px-[10%] bg-white">
         <div class="text-center mb-16">
             <h2 class="text-4xl font-bold flex items-bottom text-neutral-900">
                 <span class="h-8.5 w-1.5 bg-green-700 mr-5"></span> About
