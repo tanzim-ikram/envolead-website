@@ -27,6 +27,7 @@ Route::get('/', function () {
     return Inertia::render('Welcome', [
         'projects' => Project::whereNull('parent_id')->orderBy('sort_order')->get(),
         'clubPartners' => Partner::where('type', 'clubs')->get(),
+        'companyPartners' => Partner::where('type', 'company')->get(),
     ]);
 });
 

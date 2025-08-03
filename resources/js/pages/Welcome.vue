@@ -5,10 +5,12 @@ import HeroSection from '@/components/HeroSection.vue';
 import AboutSection from '@/components/AboutSection.vue';
 import Projects from '@/components/Projects.vue';
 import YouthPartners from '@/components/YouthPartners.vue'
+import PartnersAndPatrons from '@/components/PartnersAndPatrons.vue';
 
 const props = defineProps({
   clubPartners: Array,
-  projects: Array
+  projects: Array,
+  companyPartners: Array
 })
 </script>
 
@@ -19,6 +21,7 @@ const props = defineProps({
     <AboutSection />
      <Projects :projects="projects" />
      <YouthPartners :clubPartners="clubPartners" />
+     <PartnersAndPatrons :partners="props.companyPartners" />
   </div>
 
 </template>
