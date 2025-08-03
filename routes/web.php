@@ -3,6 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Models\Project;
+use App\Models\Partner;
 
 Route::get('/', function () {
     return Inertia::render('Welcome');
@@ -12,15 +13,23 @@ Route::get('dashboard', function () {
     return Inertia::render('Dashboard');
 })->middleware(['auth', 'verified'])->name('dashboard');
 
-Route::get('/', function () {
-    $projects = Project::whereNull('parent_id')
-        ->orderBy('sort_order')
-        ->get();
+// Route::get('/', function () {
+//     $projects = Project::whereNull('parent_id')
+//         ->orderBy('sort_order')
+//         ->get();
 
+//     return Inertia::render('Welcome', [
+//         'projects' => $projects
+//     ]);
+// })->name('home');
+
+Route::get('/', function () {
     return Inertia::render('Welcome', [
-        'projects' => $projects
+        'projects' => Project::whereNull('parent_id')->orderBy('sort_order')->get(),
+        'clubPartners' => Partner::where('type', 'clubs')->get(),
     ]);
-})->name('home');
+});
+
 
 
 require __DIR__ . '/settings.php';

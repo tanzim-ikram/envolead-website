@@ -1,9 +1,9 @@
 <template>
     <section id="about" class="py-28 px-[10%] bg-gray-50">
         <div class="text-center mb-16">
-            <h1 class="text-4xl font-bold flex items-bottom text-neutral-900">
+            <h2 class="text-4xl font-bold flex items-bottom text-neutral-900">
                 <span class="h-8.5 w-1.5 bg-green-700 mr-5"></span> About
-            </h1>
+            </h2>
         </div>
         <div class="mx-auto flex flex-col lg:flex-row items-start gap-30">
             <!-- Text Content -->
