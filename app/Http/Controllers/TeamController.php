@@ -8,11 +8,12 @@ use App\Models\TeamMember;
 
 class TeamController extends Controller
 {
+
     public function show($slug)
     {
         $member = TeamMember::where('slug', $slug)->firstOrFail();
 
-        return Inertia::render('Team/TeamProfile', [
+        return Inertia::render('Team', [
             'member' => $member
         ]);
     }
