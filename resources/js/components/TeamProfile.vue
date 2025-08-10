@@ -18,7 +18,10 @@
 
                 <div>
                     <h3 class="text-3xl font-bold text-green-700">{{ member.name }}</h3>
-                    <p class="text-lg font-medium text-neutral-700">{{ member.designation }}</p>
+                    <p v-for="(title, idx) in member.designation.split(',')" :key="idx" class="text-lg text-gray-700">
+                        {{ title.trim() }}
+                    </p>
+
 
                     <!-- Social Links -->
                     <div class="flex justify-start gap-4 mt-6">
