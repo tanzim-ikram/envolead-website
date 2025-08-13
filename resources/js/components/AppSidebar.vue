@@ -18,6 +18,11 @@ const mainNavItems: NavItem[] = [
         title: 'Team',
         href: '/team',
         icon: Users,
+        items: [
+            { title: 'Add new member', href: '/admin/team/create', icon: Users },
+            { title: 'Update member info', href: '/admin/team/manage', icon: Users },
+            { title: 'View all members', href: '/admin/team', icon: Users },
+        ],
     },
 ];
 
@@ -42,7 +47,7 @@ const footerNavItems: NavItem[] = [
                 <SidebarMenuItem>
                     <SidebarMenuButton size="lg" as-child>
                         <Link :href="route('dashboard')">
-                            <AppLogo />
+                        <AppLogo />
                         </Link>
                     </SidebarMenuButton>
                 </SidebarMenuItem>

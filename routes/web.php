@@ -6,6 +6,8 @@ use App\Models\TeamMember;
 use App\Http\Controllers\TeamController;
 use App\Models\Project;
 use App\Models\Partner;
+use App\Http\Controllers\Admin\AdminTeamController;
+use App\Http\Controllers\TeamMemberController;
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
@@ -22,6 +24,10 @@ Route::get('/dashboard', function () {
 
 Route::get('/team/{slug}', [TeamController::class, 'show']);
 
+// Admin team routes
+Route::prefix('admin/team')->name('admin.team.')->group(function () {
+    Route::get('/', [AdminTeamController::class, 'index'])->name('index');
+});
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';
