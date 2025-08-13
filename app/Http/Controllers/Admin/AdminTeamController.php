@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\TeamMember;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class AdminTeamController extends Controller
 {
@@ -33,8 +35,33 @@ class AdminTeamController extends Controller
     public function update(Request $request, $id)
     {
         $member = TeamMember::findOrFail($id);
-        $member->update($request->only('name', 'designation', 'email', 'linkedin', 'photo', 'bio'));
-        return redirect()->route('admin.team.manage')->with('success', 'Member updated successfully.');
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'designation' => 'required|string',
+            'email' => 'nullable|email',
+            'linkedin' => 'nullable|url',
+            'bio' => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
+        ]);
+
+        // Delete old photo if new one is uploaded
+        if ($request->hasFile('photo')) {
+            // Remove old photo if exists
+            if ($member->photo && file_exists(public_path($member->photo))) {
+                unlink(public_path($member->photo));
+            }
+
+            // Store new photo
+            $photoPath = $request->file('photo')->store('team', 'public');
+            $validated['photo'] = '/storage/' . $photoPath;
+        } else {
+            $validated['photo'] = $member->photo; // Keep existing photo
+        }
+
+        $member->update($validated);
+
+        return redirect()->route('admin.team.index')->with('success', 'Team member updated successfully.');
     }
 
     public function destroy($id)

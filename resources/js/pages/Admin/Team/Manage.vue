@@ -1,6 +1,8 @@
 <script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
+import { computed } from 'vue';
+
 defineProps({ members: Array });
 
 const deleteMember = (id) => {
@@ -8,39 +10,83 @@ const deleteMember = (id) => {
         router.delete(route('admin.team.destroy', id));
     }
 };
+
+const breadcrumbs = computed(() => [
+    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'Team', href: '/admin/team' },
+]);
 </script>
 
 <template>
-
     <Head title="Manage Team Members" />
-    <AppLayout>
-        <div class="p-4">
-            <h1 class="text-2xl font-bold mb-6">Update Member Info</h1>
-            <table class="w-full table-auto border text-left text-sm">
-                <thead class="bg-gray-100">
-                    <tr>
-                        <th class="p-2 border">Photo</th>
-                        <th class="p-2 border">Name</th>
-                        <th class="p-2 border">Designation</th>
-                        <th class="p-2 border">Email</th>
-                        <th class="p-2 border text-center">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="member in members" :key="member.id" class="hover:bg-gray-50">
-                        <td class="p-2 border"><img :src="member.photo" class="h-12 w-12 object-cover rounded" /></td>
-                        <td class="p-2 border">{{ member.name }}</td>
-                        <td class="p-2 border">{{ member.designation }}</td>
-                        <td class="p-2 border">{{ member.email || '—' }}</td>
-                        <td class="p-2 border text-center space-x-2">
-                            <Link :href="route('admin.team.edit', member.id)" class="text-blue-600 hover:underline">
-                            Update</Link>
-                            <button @click="deleteMember(member.id)"
-                                class="text-red-600 hover:underline">Delete</button>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+
+    <AppLayout :breadcrumbs="breadcrumbs">
+        <div class="p-6">
+            <!-- Header -->
+            <div class="mb-6">
+                <h1 class="text-2xl font-semibold text-gray-900 mb-1">Update Member Info</h1>
+                <p class="text-gray-600">Edit or remove existing team members.</p>
+            </div>
+
+            <!-- Card Wrapper -->
+            <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+                <div class="p-6 border-b border-gray-200">
+                    <h2 class="text-lg font-medium text-gray-800">Manage Team</h2>
+                </div>
+
+                <!-- Table -->
+                <div class="overflow-x-auto">
+                    <table class="min-w-full text-sm text-left border-t border-gray-200">
+                        <thead class="bg-gray-50 text-gray-600 uppercase text-xs">
+                            <tr>
+                                <th class="px-6 py-3 text-center">Photo</th>
+                                <th class="px-6 py-3">Name</th>
+                                <th class="px-6 py-3">Designation</th>
+                                <th class="px-6 py-3">Email</th>
+                                <th class="px-6 py-3 text-center">Action</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr
+                                v-for="member in members"
+                                :key="member.id"
+                                class="hover:bg-gray-50 transition"
+                            >
+                                <td class="px-6 py-4 text-center">
+                                    <img
+                                        :src="member.photo"
+                                        alt="Member Photo"
+                                        class="h-12 w-12 rounded-full object-cover mx-auto border border-gray-300"
+                                    />
+                                </td>
+                                <td class="px-6 py-4 font-medium text-gray-800">{{ member.name }}</td>
+                                <td class="px-6 py-4 text-gray-700">
+                                    <div v-for="(title, idx) in member.designation.split(',')" :key="idx">
+                                        {{ title.trim() }}
+                                    </div>
+                                </td>
+                                <td class="px-6 py-4 text-gray-700">
+                                    {{ member.email || '—' }}
+                                </td>
+                                <td class="px-6 py-4 text-center space-x-2">
+                                    <Link
+                                        :href="route('admin.team.edit', member.id)"
+                                        class="text-blue-600 font-medium hover:underline"
+                                    >
+                                        Update
+                                    </Link>
+                                    <button
+                                        @click="deleteMember(member.id)"
+                                        class="text-red-600 font-medium hover:underline"
+                                    >
+                                        Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </AppLayout>
 </template>

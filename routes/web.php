@@ -14,7 +14,7 @@ Route::get('/', function () {
         'projects' => Project::whereNull('parent_id')->orderBy('sort_order')->get(),
         'clubPartners' => Partner::where('type', 'clubs')->get(),
         'companyPartners' => Partner::where('type', 'company')->get(),
-        'team' => TeamMember::orderBy('id')->get(), // ✅ Correct line
+        'team' => TeamMember::orderBy('id')->get(),
     ]);
 })->name('home');
 
