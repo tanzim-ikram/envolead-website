@@ -29,7 +29,7 @@ Route::prefix('admin/team')->name('admin.team.')->group(function () {
     Route::get('/', [AdminTeamController::class, 'index'])->name('index');
     Route::get('/manage', [AdminTeamController::class, 'manage'])->name('manage');
     Route::get('/{id}/edit', [AdminTeamController::class, 'edit'])->name('edit');
-    Route::put('/{id}', [AdminTeamController::class, 'update'])->name('update');
+    Route::match(['post', 'put'],'/{id}', [AdminTeamController::class, 'update'])->name('update');
     Route::delete('/{id}', [AdminTeamController::class, 'destroy'])->name('destroy');
 });
 

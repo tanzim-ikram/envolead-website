@@ -36,14 +36,29 @@ class AdminTeamController extends Controller
     {
         $member = TeamMember::findOrFail($id);
 
-        $validated = $request->validate([
-            'name' => 'required|string|max:255',
-            'designation' => 'required|string',
-            'email' => 'nullable|email',
-            'linkedin' => 'nullable|url',
-            'bio' => 'nullable|string',
-            'photo' => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
-        ]);
+        // Only validate fields that are present in the request
+        $validationRules = [];
+        
+        if ($request->has('name')) {
+            $validationRules['name'] = 'required|string|max:255';
+        }
+        if ($request->has('designation')) {
+            $validationRules['designation'] = 'required|string';
+        }
+        if ($request->has('email')) {
+            $validationRules['email'] = 'nullable|email';
+        }
+        if ($request->has('linkedin')) {
+            $validationRules['linkedin'] = 'nullable|url';
+        }
+        if ($request->has('bio')) {
+            $validationRules['bio'] = 'nullable|string';
+        }
+        if ($request->hasFile('photo')) {
+            $validationRules['photo'] = 'nullable|image|mimes:jpeg,png,jpg|max:2048';
+        }
+
+        $validated = $request->validate($validationRules);
 
         // Delete old photo if new one is uploaded
         if ($request->hasFile('photo')) {
@@ -55,13 +70,11 @@ class AdminTeamController extends Controller
             // Store new photo
             $photoPath = $request->file('photo')->store('team', 'public');
             $validated['photo'] = '/storage/' . $photoPath;
-        } else {
-            $validated['photo'] = $member->photo; // Keep existing photo
         }
 
         $member->update($validated);
 
-        return redirect()->route('admin.team.index')->with('success', 'Team member updated successfully.');
+        return redirect()->route('admin.team.manage')->with('success', 'Team member updated successfully.');
     }
 
     public function destroy($id)

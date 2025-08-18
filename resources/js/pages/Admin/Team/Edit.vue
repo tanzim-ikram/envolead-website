@@ -1,4 +1,5 @@
 <script setup>
+// eslint-disable-next-line vue/script-setup-uses-vars
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, useForm } from '@inertiajs/vue3';
 import { ref, computed } from 'vue';
@@ -8,27 +9,32 @@ const props = defineProps({ member: Object });
 const previewUrl = ref(props.member.photo);
 
 const form = useForm({
-    name: null,
-    designation: null,
-    email: null,
-    linkedin: null,
-    bio: null,
+    name: props.member.name || '',
+    designation: props.member.designation || '',
+    email: props.member.email || '',
+    linkedin: props.member.linkedin || '',
+    bio: props.member.bio || '',
     photo: null,
 });
 
 const submit = () => {
-    const dataToSend = {
-        _method: 'put',
-        ...(form.name !== null ? { name: form.name } : {}),
-        ...(form.designation !== null ? { designation: form.designation } : {}),
-        ...(form.email !== null ? { email: form.email } : {}),
-        ...(form.linkedin !== null ? { linkedin: form.linkedin } : {}),
-        ...(form.bio !== null ? { bio: form.bio } : {}),
-        ...(form.photo ? { photo: form.photo } : {}),
-    };
+    const changedData = {};
 
+    if (form.name !== props.member.name) changedData.name = form.name;
+    if (form.designation !== props.member.designation) changedData.designation = form.designation;
+    if (form.email !== props.member.email) changedData.email = form.email;
+    if (form.linkedin !== props.member.linkedin) changedData.linkedin = form.linkedin;
+    if (form.bio !== props.member.bio) changedData.bio = form.bio;
+    if (form.photo) changedData.photo = form.photo;
+
+    // Update form with only changed data
+    Object.keys(changedData).forEach(key => {
+        form[key] = changedData[key];
+    });
+
+    // Submit as POST but spoof method to PUT
     form.post(route('admin.team.update', props.member.id), {
-        data: dataToSend,
+        method: 'put', // 👈 VERY IMPORTANT
         forceFormData: true,
         preserveScroll: true,
     });
@@ -71,9 +77,8 @@ const breadcrumbs = computed(() => [
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Name</label>
                                     <input
                                         v-model="form.name"
-                                        :placeholder="props.member.name"
                                         type="text"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none"
                                     />
                                     <div v-if="form.errors.name" class="text-sm text-red-600 mt-1">{{ form.errors.name }}</div>
                                 </div>
@@ -82,9 +87,8 @@ const breadcrumbs = computed(() => [
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Designation</label>
                                     <input
                                         v-model="form.designation"
-                                        :placeholder="props.member.designation"
                                         type="text"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none"
                                     />
                                     <div v-if="form.errors.designation" class="text-sm text-red-600 mt-1">{{ form.errors.designation }}</div>
                                 </div>
@@ -95,9 +99,8 @@ const breadcrumbs = computed(() => [
                                     <label class="block text-sm font-medium text-gray-700 mb-2">Email</label>
                                     <input
                                         v-model="form.email"
-                                        :placeholder="props.member.email"
                                         type="email"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none"
                                     />
                                     <div v-if="form.errors.email" class="text-sm text-red-600 mt-1">{{ form.errors.email }}</div>
                                 </div>
@@ -106,9 +109,8 @@ const breadcrumbs = computed(() => [
                                     <label class="block text-sm font-medium text-gray-700 mb-2">LinkedIn</label>
                                     <input
                                         v-model="form.linkedin"
-                                        :placeholder="props.member.linkedin"
                                         type="url"
-                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                                        class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none"
                                     />
                                     <div v-if="form.errors.linkedin" class="text-sm text-red-600 mt-1">{{ form.errors.linkedin }}</div>
                                 </div>
@@ -118,9 +120,8 @@ const breadcrumbs = computed(() => [
                                 <label class="block text-sm font-medium text-gray-700 mb-2">Biography</label>
                                 <textarea
                                     v-model="form.bio"
-                                    :placeholder="props.member.bio"
                                     rows="4"
-                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-green-500 focus:border-green-500 resize-none"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none resize-none"
                                 ></textarea>
                                 <div v-if="form.errors.bio" class="text-sm text-red-600 mt-1">{{ form.errors.bio }}</div>
                             </div>
