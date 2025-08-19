@@ -19,13 +19,17 @@
                 <div>
                     <h3 class="text-3xl font-bold text-green-700">{{ member.name }}</h3>
                     <!-- Main Designations -->
-                    <p v-for="(title, idx) in member.designation.split(';')" :key="idx" class="text-lg text-gray-700">
+                    <p v-for="(title, idx) in member.designation.split(';')" :key="'designation-' + idx"
+                        class="text-lg text-gray-700">
                         {{ title.trim() }}
                     </p>
-                    <!-- Other Designations (only if exists) -->
-                    <p v-if="member.other_designations" v-for="(other, idx) in member.other_designations.split(';')"
-                        :key="`other-${idx}`" class="text-sm text-gray-600">
-                        {{ other.trim() }}
+
+                    <br>
+                    
+                    <!-- Show other_designations only if exists -->
+                    <p v-if="member.other_designations" v-for="(extra, idx) in member.other_designations.split(';')"
+                        :key="'other-' + idx" class=" text-sm text-gray-600">
+                        {{ extra.trim() }}
                     </p>
 
                     <!-- Social Links -->
@@ -43,11 +47,10 @@
             </div>
 
             <!-- Bio Section -->
-            <div class="w-full text-justify text-neutral-700 leading-relaxed">
-                <p>
-                    {{ member.bio }}
-                </p>
+            <div v-if="member.bio" class="space-y-4 text-gray-800 leading-relaxed">
+                <p v-for="(para, index) in member.bio.split('\n')" :key="'bio-' + index" v-text="para.trim()" />
             </div>
+
         </div>
     </section>
 </template>

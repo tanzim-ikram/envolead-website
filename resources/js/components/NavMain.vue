@@ -8,7 +8,7 @@ import {
 } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link, usePage } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, onMounted, watch } from 'vue';
 import { ChevronRight } from 'lucide-vue-next';
 
 const props = defineProps<{ items: NavItem[] }>();
@@ -32,9 +32,54 @@ const openMap = ref<Record<string, boolean>>({});
 
 const hasChildren = (item: NavItem) => item.items && item.items.length > 0;
 
-const toggle = (key: string) => {
-  openMap.value[key] = !openMap.value[key];
+/**
+ * Returns true if any descendant of this item matches the current path
+ */
+const hasActiveChild = (item: NavItem): boolean => {
+  if (!hasChildren(item)) return false;
+  return item.items!.some((child) => {
+    return isActive(child.href) || hasActiveChild(child);
+  });
 };
+
+const toggle = (key: string) => {
+  const willOpen = !openMap.value[key];
+  // Collapse all at this level
+  Object.keys(openMap.value).forEach((k) => (openMap.value[k] = false));
+  // Open only the toggled one if it was previously closed
+  if (willOpen) openMap.value[key] = true;
+};
+
+/**
+ * Ensure only the group that contains the current route is expanded
+ */
+const initializeOpenMap = () => {
+  // Determine which group (at this level) should be open
+  let openKey: string | null = null;
+  for (const item of props.items) {
+    if (hasChildren(item) && (isActive(item.href) || hasActiveChild(item))) {
+      openKey = item.title;
+      break;
+    }
+  }
+
+  // Reset and set only the matching group open
+  const next: Record<string, boolean> = {};
+  for (const item of props.items) {
+    if (hasChildren(item)) {
+      next[item.title] = openKey === item.title;
+    }
+  }
+  openMap.value = next;
+};
+
+onMounted(() => {
+  initializeOpenMap();
+});
+
+watch(currentPath, () => {
+  initializeOpenMap();
+});
 </script>
 
 <template>
@@ -48,7 +93,7 @@ const toggle = (key: string) => {
             <SidebarMenuButton
               type="button"
               @click="toggle(item.title)"
-              :is-active="isActive(item.href)"
+              :is-active="isActive(item.href) || hasActiveChild(item)"
               :tooltip="item.title"
               class="w-full justify-start"
             >
@@ -72,7 +117,7 @@ const toggle = (key: string) => {
 
           <!-- Regular navigation link -->
           <template v-else>
-            <SidebarMenuButton as-child :is-active="isActive(item.href)" :tooltip="item.title">
+            <SidebarMenuButton as-child :is-active="currentPath === item.href" :tooltip="item.title">
               <Link :href="item.href">
                 <component :is="item.icon" class="mr-2 h-4 w-4" v-if="item.icon" />
                 <span>{{ item.title }}</span>

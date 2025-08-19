@@ -6,8 +6,8 @@
 
         <div class="flex flex-wrap justify-center gap-20">
             <Link v-for="member in members" :key="member.id" :href="`/team/${member.slug}`"
-                class="bg-green-800 shadow rounded-md border border-green-800 text-center w-[250px] p-2 block hover:shadow-lg transition">
-            <img :src="member.photo" class="w-full h-64 object-cover rounded-md" />
+                class="bg-green-800 shadow rounded-md border border-green-800 text-center w-[300px] p-2 block hover:shadow-lg transition">
+            <img :src="member.photo" class="w-full h-65 object-cover rounded-md" />
             <div class="bg-green-800 text-white py-4">
                 <h3 class="font-bold text-2xl">{{ member.name }}</h3>
                 <p v-for="(title, idx) in member.designation.split(';')" :key="idx" class="text-base">

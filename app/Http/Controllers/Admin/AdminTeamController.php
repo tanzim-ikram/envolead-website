@@ -21,11 +21,13 @@ class AdminTeamController extends Controller
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'designation' => 'required|string|max:255',
+            'other_designations' => 'nullable|string|max:255', // ADD THIS
             'email' => 'nullable|email|max:255',
             'linkedin' => 'nullable|url|max:255',
             'bio' => 'nullable|string',
             'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
         ]);
+
 
         if ($request->hasFile('photo')) {
             $path = $request->file('photo')->store('team', 'public');
