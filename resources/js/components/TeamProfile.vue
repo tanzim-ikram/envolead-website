@@ -18,10 +18,15 @@
 
                 <div>
                     <h3 class="text-3xl font-bold text-green-700">{{ member.name }}</h3>
-                    <p v-for="(title, idx) in member.designation.split(',')" :key="idx" class="text-lg text-gray-700">
+                    <!-- Main Designations -->
+                    <p v-for="(title, idx) in member.designation.split(';')" :key="idx" class="text-lg text-gray-700">
                         {{ title.trim() }}
                     </p>
-
+                    <!-- Other Designations (only if exists) -->
+                    <p v-if="member.other_designations" v-for="(other, idx) in member.other_designations.split(';')"
+                        :key="`other-${idx}`" class="text-sm text-gray-600">
+                        {{ other.trim() }}
+                    </p>
 
                     <!-- Social Links -->
                     <div class="flex justify-start gap-4 mt-6">

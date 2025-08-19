@@ -10,7 +10,7 @@
             <img :src="member.photo" class="w-full h-64 object-cover rounded-md" />
             <div class="bg-green-800 text-white py-4">
                 <h3 class="font-bold text-2xl">{{ member.name }}</h3>
-                <p v-for="(title, idx) in member.designation.split(',')" :key="idx" class="text-base">
+                <p v-for="(title, idx) in member.designation.split(';')" :key="idx" class="text-base">
                     {{ title.trim() }}
                 </p>
             </div>

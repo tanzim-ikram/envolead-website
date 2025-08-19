@@ -46,6 +46,10 @@ class TeamController extends Controller
 
         $member->update($updates);
 
+        if ($request->has('other_designations')) {
+            $validationRules['other_designations'] = 'nullable|string|max:255';
+        }
+        
         return redirect()->route('admin.team.manage')->with('success', 'Member updated.');
     }
 }

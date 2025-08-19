@@ -28,10 +28,13 @@ Route::get('/team/{slug}', [TeamController::class, 'show']);
 Route::prefix('admin/team')->name('admin.team.')->group(function () {
     Route::get('/', [AdminTeamController::class, 'index'])->name('index');
     Route::get('/manage', [AdminTeamController::class, 'manage'])->name('manage');
+    Route::get('/create', [AdminTeamController::class, 'create'])->name('create');
+    Route::post('/', [AdminTeamController::class, 'store'])->name('store');
     Route::get('/{id}/edit', [AdminTeamController::class, 'edit'])->name('edit');
     Route::match(['post', 'put'],'/{id}', [AdminTeamController::class, 'update'])->name('update');
     Route::delete('/{id}', [AdminTeamController::class, 'destroy'])->name('destroy');
 });
+
 
 require __DIR__ . '/settings.php';
 require __DIR__ . '/auth.php';

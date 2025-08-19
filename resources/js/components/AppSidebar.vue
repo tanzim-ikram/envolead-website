@@ -5,7 +5,7 @@ import NavUser from '@/components/NavUser.vue';
 import { Sidebar, SidebarContent, SidebarFooter, SidebarHeader, SidebarMenu, SidebarMenuButton, SidebarMenuItem } from '@/components/ui/sidebar';
 import { type NavItem } from '@/types';
 import { Link } from '@inertiajs/vue3';
-import { BookOpen, Folder, LayoutGrid, Users } from 'lucide-vue-next';
+import { BookOpen, Folder, LayoutGrid, UsersRound, UserPlus, UserRoundPen } from 'lucide-vue-next';
 import AppLogo from './AppLogo.vue';
 
 const mainNavItems: NavItem[] = [
@@ -17,11 +17,11 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Team',
         href: '/team',
-        icon: Users,
+        icon: UsersRound,
         items: [
-            { title: 'Add new member', href: '/admin/team/create', icon: Users },
-            { title: 'Update member info', href: '/admin/team/manage', icon: Users },
-            { title: 'View all members', href: '/admin/team', icon: Users },
+            { title: 'Add new member', href: '/admin/team/create', icon: UserPlus },
+            { title: 'Update member info', href: '/admin/team/manage', icon: UserRoundPen },
+            { title: 'View all members', href: '/admin/team', icon: UsersRound },
         ],
     },
 ];

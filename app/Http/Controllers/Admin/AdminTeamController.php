@@ -11,6 +11,35 @@ use Illuminate\Support\Str;
 
 class AdminTeamController extends Controller
 {
+    public function create()
+    {
+        return Inertia::render('Admin/Team/Create');
+    }
+
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'designation' => 'required|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'linkedin' => 'nullable|url|max:255',
+            'bio' => 'nullable|string',
+            'photo' => 'nullable|image|mimes:jpg,jpeg,png|max:2048',
+        ]);
+
+        if ($request->hasFile('photo')) {
+            $path = $request->file('photo')->store('team', 'public');
+            $validated['photo'] = '/storage/' . $path;
+        }
+
+        // Generate slug
+        $validated['slug'] = Str::slug($validated['name']) . '-' . Str::random(6);
+
+        TeamMember::create($validated);
+
+        return redirect()->route('admin.team.manage')->with('success', 'Team member added successfully.');
+    }
+
     public function index()
     {
         $members = TeamMember::all();
@@ -38,7 +67,7 @@ class AdminTeamController extends Controller
 
         // Only validate fields that are present in the request
         $validationRules = [];
-        
+
         if ($request->has('name')) {
             $validationRules['name'] = 'required|string|max:255';
         }
@@ -57,6 +86,10 @@ class AdminTeamController extends Controller
         if ($request->hasFile('photo')) {
             $validationRules['photo'] = 'nullable|image|mimes:jpeg,png,jpg|max:2048';
         }
+        if ($request->has('other_designations')) {
+            $validationRules['other_designations'] = 'nullable|string|max:255';
+        }
+
 
         $validated = $request->validate($validationRules);
 
