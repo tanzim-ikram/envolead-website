@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\File;
 use Inertia\Inertia;
 use App\Models\TeamMember;
 use App\Http\Controllers\TeamController;
@@ -11,12 +12,38 @@ use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Admin\PartnerController;
 use App\Models\News;
 
+// Helper function to get partner logo URL
+function getPartnerLogoUrl($logoPath)
+{
+    if (!$logoPath) {
+        return null;
+    }
+
+    // Check if it's an old path (public/partners)
+    if (File::exists(public_path('partners/' . basename($logoPath)))) {
+        return '/partners/' . basename($logoPath);
+    }
+
+    // Check if it's a new path (storage/partners)
+    if (File::exists(storage_path('app/public/' . $logoPath))) {
+        return '/storage/' . $logoPath;
+    }
+
+    // Fallback - assume it's in storage
+    return '/storage/' . $logoPath;
+}
 
 Route::get('/', function () {
     return Inertia::render('Welcome', [
         'projects' => Project::whereNull('parent_id')->orderBy('sort_order')->get(),
-        'clubPartners' => Partner::where('type', 'clubs')->get(),
-        'companyPartners' => Partner::where('type', 'company')->get(),
+        'clubPartners' => Partner::where('type', 'clubs')->get()->map(function ($partner) {
+            $partner->logo_url = getPartnerLogoUrl($partner->logo);
+            return $partner;
+        }),
+        'companyPartners' => Partner::where('type', 'company')->get()->map(function ($partner) {
+            $partner->logo_url = getPartnerLogoUrl($partner->logo);
+            return $partner;
+        }),
         'team' => TeamMember::orderBy('id')->get(),
     ]);
 })->name('home');
@@ -90,10 +117,13 @@ Route::get('/news/{news:slug}', function (News $news) {
 // ------------------ Admin (auth) ------------------
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
+        // News management
         Route::resource('news', AdminNewsController::class);
-        Route::resource('partners', PartnerController::class); 
         Route::patch('news/{news}/toggle-status', [AdminNewsController::class, 'toggleStatus'])
             ->name('news.toggle-status');
+
+        // Partners management - Use resource route (FIXED)
+        Route::resource('partners', PartnerController::class);
     });
 });
 
