@@ -13,6 +13,7 @@
             <a href="#about"
                 class="inline-flex items-center px-6 py-3 bg-green-800 text-white font-semibold text-base rounded-md shadow hover:bg-green-900 transition">
                 Learn More
+                <!-- <MoveRight width="24" height="24" stroke-width="2.25" class="ml-2" /> -->
                 <Icon icon="tabler:arrow-right" width="24" height="24" class="ml-2" />
             </a>
         </div>
@@ -21,6 +22,7 @@
 
 <script setup>
 import { Icon } from "@iconify/vue";
+import { MoveRight } from 'lucide-vue-next';
 </script>
 
 

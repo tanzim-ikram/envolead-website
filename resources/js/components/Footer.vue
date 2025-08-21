@@ -16,8 +16,8 @@
       <div>
         <h3 class="font-bold text-lg mb-2">Contacts</h3>
         <p class="text-sm text-neutral-700">
-          Ventura Iconia, Level 3, Holding 37, Road 11<br />
-          Banani, Block H, Dhaka 1213, Bangladesh
+          Ventura Iconia, Level 3, Holding 37, <br />
+          Road 11, Banani, Block H, Dhaka 1213, Bangladesh
         </p>
         <p class="text-sm mt-2 text-neutral-700">Phone: +88 017 3071 3866</p>
         <p class="text-sm text-neutral-700">Email: <a href="mailto:info@envolead.com" class="text-green-800">info@envolead.com</a></p>

@@ -2,6 +2,7 @@
 import Footer from '@/components/Footer.vue'
 import Navbar from '@/components/Navbar.vue'
 import { Head, Link } from '@inertiajs/vue3'
+import { MoveRight } from 'lucide-vue-next';
 
 const props = defineProps({
     news: {
@@ -39,7 +40,7 @@ const fmtDate = (iso) => {
         <!-- <h1 class="text-3xl font-extrabold text-green-800 mb-6">News</h1> -->
 
         <div v-if="news?.data && news.data.length > 0" class="space-y-8">
-            <article v-for="item in news.data" :key="item.id" class="border-b pb-6">
+            <article v-for="(item, index) in news.data" :key="item.id" class="pb-4">
                 <div class="grid grid-cols-1 md:grid-cols-12 gap-6 items-start">
                     <!-- Thumbnail -->
                     <div class="md:col-span-3">
@@ -65,10 +66,14 @@ const fmtDate = (iso) => {
                         <p class="text-gray-700 mb-3">{{ item.excerpt || 'No excerpt available.' }}</p>
                         <Link :href="route('news.show', item.slug)"
                             class="inline-flex items-center text-green-700 font-medium hover:underline">
-                        Read more <span class="ml-2">→</span>
+                        Read more
+                        <!-- <span class="ml-2">→</span> -->
+                        <MoveRight width="20" height="20" stroke-width="1.5" class="ml-2" />
                         </Link>
                     </div>
                 </div>
+                <!-- Horizontal bar after each card except the last one -->
+                <div v-if="index < news.data.length - 1" class="mt-6 border-b border-gray-200"></div>
             </article>
         </div>
 

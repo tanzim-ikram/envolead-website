@@ -19,7 +19,8 @@
                 <a href="#"
                     class="text-green-800 font-semibold text-sm mt-4 flex justify-center items-center hover:underline">
                     View project details
-                    <Icon icon="tabler:arrow-right" width="16" height="16" class="ml-1" />
+                    <MoveRight width="20" height="20" stroke-width="1.5" class="ml-2" />
+                    <!-- <Icon icon="tabler:arrow-right" width="16" height="16" class="ml-1" /> -->
                 </a>
             </div>
         </div>
@@ -28,6 +29,7 @@
             <button @click="toggleShowAll"
                 class="bg-green-800 hover:bg-green-900 text-white px-6 py-3 rounded font-semibold transition flex justify-center items-center text-base">
                 {{ showAll ? "Show less projects" : "Show more projects" }}
+                <!-- <MoveRight width="24" height="24" stroke-width="2.25" class="ml-2" /> -->
                 <Icon icon="tabler:arrow-right" width="24" height="24" class="ml-2" />
             </button>
         </div>
@@ -37,6 +39,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { Icon } from "@iconify/vue";
+import { MoveRight } from 'lucide-vue-next';
 
 const props = defineProps({
     projects: Array

@@ -8,6 +8,7 @@ use App\Models\Project;
 use App\Models\Partner;
 use App\Http\Controllers\Admin\AdminTeamController;
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
+use App\Http\Controllers\Admin\PartnerController;
 use App\Models\News;
 
 
@@ -90,6 +91,7 @@ Route::get('/news/{news:slug}', function (News $news) {
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         Route::resource('news', AdminNewsController::class);
+        Route::resource('partners', PartnerController::class); 
         Route::patch('news/{news}/toggle-status', [AdminNewsController::class, 'toggleStatus'])
             ->name('news.toggle-status');
     });
