@@ -1,4 +1,6 @@
 <script setup>
+import Footer from '@/components/Footer.vue'
+import Navbar from '@/components/Navbar.vue'
 import { Head, Link } from '@inertiajs/vue3'
 
 const props = defineProps({
@@ -25,9 +27,16 @@ const fmtDate = (iso) => {
 
 <template>
 
+    <Navbar />
+
     <Head title="News" />
-    <div class="max-w-6xl mx-auto px-4 py-10">
-        <h1 class="text-3xl font-extrabold text-green-800 mb-6">News</h1>
+    <div class="mx-auto px-[10%] py-10">
+        <div class="text-center mb-16">
+            <h2 class="text-4xl font-bold flex items-bottom text-neutral-900">
+                <span class="h-8.5 w-1.5 bg-green-700 mr-5"></span> News
+            </h2>
+        </div>
+        <!-- <h1 class="text-3xl font-extrabold text-green-800 mb-6">News</h1> -->
 
         <div v-if="news?.data && news.data.length > 0" class="space-y-8">
             <article v-for="item in news.data" :key="item.id" class="border-b pb-6">
@@ -85,4 +94,5 @@ const fmtDate = (iso) => {
             ]" :disabled="!l.url" />
         </div>
     </div>
+    <Footer />
 </template>
