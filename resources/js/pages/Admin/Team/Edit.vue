@@ -54,6 +54,7 @@ const handleFileChange = (e) => {
 const breadcrumbs = computed(() => [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Team', href: '/admin/team' },
+    { title: 'Edit Team Member', href: '/admin/team' },
 ]);
 </script>
 
@@ -67,7 +68,7 @@ const breadcrumbs = computed(() => [
                 <p class="text-gray-600">Update member information</p>
             </div>
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="bg-white rounded-lg shadow-sm border-2 border-gray-200">
                 <div class="px-8 py-6 border-b border-gray-200">
                     <h2 class="text-xl font-semibold text-gray-900">{{ props.member.name }}</h2>
                     <p class="text-gray-600 text-sm">{{ props.member.designation || 'Team Member' }}</p>

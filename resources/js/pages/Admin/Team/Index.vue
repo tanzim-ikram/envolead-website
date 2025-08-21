@@ -1,6 +1,7 @@
 <script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
+import { Eye } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 const props = defineProps({
@@ -10,6 +11,7 @@ const props = defineProps({
 const breadcrumbs = computed(() => [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Team', href: '/admin/team' },
+    { title: 'All Team Members', href: '/admin/team' },
 ]);
 </script>
 
@@ -76,12 +78,12 @@ const breadcrumbs = computed(() => [
                                     </a>
                                     <span v-else class="text-gray-400">—</span>
                                 </td>
-                                <td class="px-6 py-4 text-center">
+                                <td class="px-6 py-4">
                                     <Link
                                         :href="`/team/${member.slug}`"
-                                        class="text-green-700 font-medium hover:underline"
+                                        class="text-green-700 font-medium hover:underline flex justify-center"
                                     >
-                                        View
+                                        <Eye class="w-4 h-4" />
                                     </Link>
                                 </td>
                             </tr>

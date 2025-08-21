@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Head, Link, router } from '@inertiajs/vue3'
+import { ArrowLeft, Pencil, Trash2, Play, Eye } from 'lucide-vue-next'
 
 interface NewsItem {
     id: number
@@ -47,18 +48,25 @@ const confirmAndDelete = (id: number) => {
 const publish = (id: number) => {
     router.patch(route('admin.news.toggle-status', id))
 }
+
+const breadcrumbs = [
+  { title: 'Dashboard', href: '/dashboard' },
+  { title: 'News', href: '/admin/news' },
+  { title: 'Manage News', href: '/admin/news' },
+]
 </script>
 
 <template>
 
     <Head title="Manage News" />
-    <AppLayout>
+    <AppLayout :breadcrumbs="breadcrumbs">
         <div class="p-6 space-y-6">
             <!-- Header -->
             <div class="flex items-center justify-between">
                 <h1 class="text-2xl font-semibold">Manage News</h1>
                 <Link :href="route('admin.news.create')"
-                    class="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800">
+                    class="inline-flex items-center px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800">
+                <ArrowLeft class="w-4 h-4 mr-2" />
                 Post News
                 </Link>
             </div>
@@ -97,7 +105,7 @@ const publish = (id: number) => {
                                 <td class="px-6 py-4 text-gray-700">{{ formatDate(item.published_at) }}</td>
                                 <td class="px-6 py-4">
                                     <span :class="[
-                                        'inline-flex items-center px-2 py-1 rounded text-xs font-medium',
+                                        'inline-flex items-center px-3 py-1 rounded-full text-xs font-medium',
                                         item.status === 'published' ? 'bg-green-100 text-green-800' :
                                             item.status === 'archived' ? 'bg-red-100 text-red-800' :
                                                 'bg-gray-100 text-gray-700'
@@ -105,24 +113,27 @@ const publish = (id: number) => {
                                         {{ item.status || 'draft' }}
                                     </span>
                                 </td>
-                                <td class="px-6 py-4 text-center space-x-3">
-                                    <Link :href="route('admin.news.edit', item.id)"
-                                        class="text-blue-600 font-medium hover:underline">
-                                    Edit
-                                    </Link>
-                                    <button v-if="item.status === 'draft'" @click="publish(item.id)"
-                                        class="text-green-700 font-medium hover:underline">
-                                        Publish
-                                    </button>
-                                    <button @click="confirmAndDelete(item.id)"
-                                        class="text-red-600 font-medium hover:underline">
-                                        Delete
-                                    </button>
-                                    <Link v-if="item.status === 'published' && item.slug"
-                                        :href="route('news.show', item.slug)"
-                                        class="text-gray-700 font-medium hover:underline" target="_blank">
-                                    View
-                                    </Link>
+                                <td class="px-6 py-4">
+                                    <div class="flex items-center justify-center space-x-2">
+                                        <Link :href="route('admin.news.edit', item.id)"
+                                            class="inline-flex items-center p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                                        <Pencil class="w-4 h-4" />
+                                        </Link>
+                                        <button v-if="item.status === 'draft'" @click="publish(item.id)"
+                                            class="inline-flex items-center p-2 text-green-600 hover:text-green-800 hover:bg-green-50 rounded-md transition-colors duration-200">
+                                            <Play class="w-4 h-4" />
+                                        </button>
+                                        <button @click="confirmAndDelete(item.id)"
+                                            class="inline-flex items-center p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors duration-200">
+                                            <Trash2 class="w-4 h-4" />
+                                        </button>
+                                        <Link v-if="item.status === 'published' && item.slug"
+                                            :href="route('news.show', item.slug)"
+                                            class="inline-flex items-center p-2 text-gray-600 hover:text-gray-800 hover:bg-gray-50 rounded-md transition-colors duration-200"
+                                            target="_blank">
+                                        <Eye class="w-4 h-4" />
+                                        </Link>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>

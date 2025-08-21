@@ -2,7 +2,9 @@
 import AppLayout from '@/layouts/AppLayout.vue'
 import { Head, Link, useForm } from '@inertiajs/vue3'
 import { QuillEditor } from '@vueup/vue-quill'
+import { ArrowLeft, Save, Plus, Minus, Upload, FileText, Calendar, Eye } from 'lucide-vue-next'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import { ref } from 'vue'
 
 const form = useForm({
   title: '',
@@ -18,119 +20,260 @@ const form = useForm({
   meta_description: '',
 })
 
+const imagePreview = ref<string | null>(null)
+
 const addHighlight = () => form.key_highlights.push({ label: '', value: '' })
 const removeHighlight = (i: number) => form.key_highlights.splice(i, 1)
+
+const handleImageChange = (e: Event) => {
+  const file = (e.target as HTMLInputElement)?.files?.[0]
+  if (file) {
+    form.featured_image = file
+    imagePreview.value = URL.createObjectURL(file)
+  }
+}
 
 const submit = () => {
   form.post(route('admin.news.store'), { forceFormData: true })
 }
+
+const breadcrumbs = [
+  { title: 'Dashboard', href: '/dashboard' },
+  { title: 'News', href: '/admin/news' },
+  { title: 'Post News', href: '/admin/news/create' },
+]
 </script>
 
 <template>
 
-  <Head title="Post News" />
-  <AppLayout>
-    <div class="p-6 space-y-6">
-      <div class="flex items-center justify-between">
-        <h1 class="text-2xl font-semibold">Post News</h1>
-        <Link :href="route('admin.news.index')" class="text-green-700 hover:underline">Back to Manage</Link>
+  <Head title="Create News" />
+  <AppLayout :breadcrumbs="breadcrumbs">
+    <div class="p-6">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <div>
+          <h1 class="text-2xl font-semibold text-gray-900">Create News Article</h1>
+          <p class="text-gray-600 mt-1">Write and publish a new news article</p>
+        </div>
+        <Link :href="route('admin.news.index')"
+          class="inline-flex items-center px-4 py-2 bg-green-700 text-white rounded-md hover:bg-green-800 transition-colors duration-200">
+        <ArrowLeft class="w-4 h-4 mr-2" />
+        Back to News
+        </Link>
       </div>
 
-      <form @submit.prevent="submit" class="bg-white border rounded-lg p-6 space-y-6">
-        <!-- Title -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Title</label>
-          <input v-model="form.title" type="text" class="w-full border rounded px-3 py-2" required />
-          <div v-if="form.errors.title" class="text-red-600 text-sm mt-1">{{ form.errors.title }}</div>
-        </div>
+      <!-- Form Card -->
+      <div class="bg-white shadow-sm rounded-lg border border-gray-200 overflow-hidden">
+        <form @submit.prevent="submit" class="p-6 space-y-8">
 
-        <!-- Published date & Status -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Published Date</label>
-            <input v-model="form.published_at" type="date" class="w-full border rounded px-3 py-2" />
-            <p class="text-xs text-gray-500 mt-1">Defaults to today, but you can change it.</p>
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Status</label>
-            <select v-model="form.status" class="w-full border rounded px-3 py-2">
-              <option value="draft">Draft</option>
-              <option value="published">Published</option>
-              <option value="archived">Archived</option>
-            </select>
-          </div>
-        </div>
+          <!-- Article Details Section -->
+          <div class="space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+              <h2 class="text-lg font-medium text-gray-900 flex items-center">
+                <FileText class="w-5 h-5 mr-2 text-gray-500" />
+                Article Details
+              </h2>
+            </div>
 
-        <!-- Featured image + caption -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Featured Image</label>
-            <input type="file" accept="image/*"
-              @change="e => form.featured_image = (e.target as HTMLInputElement)?.files?.[0] ?? null" />
-            <div v-if="form.errors.featured_image" class="text-red-600 text-sm mt-1">{{ form.errors.featured_image }}
+            <!-- Title -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Article Title</label>
+              <input v-model="form.title" type="text"
+                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors duration-200"
+                placeholder="Enter article title" required />
+              <div v-if="form.errors.title" class="text-red-600 text-sm mt-1">{{ form.errors.title }}</div>
+            </div>
+
+            <!-- Published date & Status -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                  <Calendar class="w-4 h-4 mr-1" />
+                  Published Date
+                </label>
+                <input v-model="form.published_at" type="date"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors duration-200" />
+                <p class="text-xs text-gray-500 mt-1">Article publication date</p>
+              </div>
+              <div>
+                <label class="text-sm font-medium text-gray-700 mb-2 flex items-center">
+                  <Eye class="w-4 h-4 mr-1" />
+                  Status
+                </label>
+                <select v-model="form.status"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors duration-200">
+                  <option value="draft">Draft</option>
+                  <option value="published">Published</option>
+                  <option value="archived">Archived</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Excerpt -->
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Short Excerpt</label>
+              <textarea v-model="form.excerpt" rows="3"
+                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors duration-200"
+                placeholder="Brief summary of the article (optional)"></textarea>
+              <p class="text-xs text-gray-500 mt-1">This will appear in article previews</p>
             </div>
           </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Image Caption (optional)</label>
-            <input v-model="form.image_caption" type="text" class="w-full border rounded px-3 py-2" />
-          </div>
-        </div>
 
-        <!-- Excerpt -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Short Excerpt (optional)</label>
-          <textarea v-model="form.excerpt" rows="2" class="w-full border rounded px-3 py-2"></textarea>
-        </div>
+          <!-- Featured Image Section -->
+          <div class="space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+              <h2 class="text-lg font-medium text-gray-900">Featured Image</h2>
+            </div>
 
-        <!-- Body (rich text) -->
-        <div>
-          <label class="block text-sm font-medium mb-2">News Body</label>
-          <QuillEditor v-model:content="form.content" content-type="html" toolbar="full" />
-          <div v-if="form.errors.content" class="text-red-600 text-sm mt-1">{{ form.errors.content }}</div>
-        </div>
-
-        <!-- Quote (optional) -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-medium mb-1">Quote Text (optional)</label>
-            <textarea v-model="form.quote_text" rows="2" class="w-full border rounded px-3 py-2"></textarea>
-          </div>
-          <div>
-            <label class="block text-sm font-medium mb-1">Quote Author (optional)</label>
-            <input v-model="form.quote_author" type="text" class="w-full border rounded px-3 py-2" />
-          </div>
-        </div>
-
-        <!-- Key Highlights -->
-        <div>
-          <div class="flex items-center justify-between mb-2">
-            <label class="block text-sm font-medium">Key Highlights (optional)</label>
-            <button type="button" @click="addHighlight" class="text-green-700 text-sm">+ Add</button>
-          </div>
-          <div class="space-y-2">
-            <div v-for="(h, i) in form.key_highlights" :key="i" class="grid grid-cols-1 md:grid-cols-3 gap-2">
-              <input v-model="h.label" placeholder="Label (e.g., Location)" class="border rounded px-3 py-2" />
-              <input v-model="h.value" placeholder="Value (e.g., 8 Divisions)"
-                class="border rounded px-3 py-2 md:col-span-2" />
-              <button type="button" @click="removeHighlight(i)" class="text-red-600 text-sm">Remove</button>
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div class="lg:col-span-1">
+                <div
+                  class="w-full h-48 border-2 border-dashed border-gray-300 rounded-lg overflow-hidden bg-gray-50 flex items-center justify-center">
+                  <img v-if="imagePreview" :src="imagePreview" class="w-full h-full object-cover" alt="Preview" />
+                  <div v-else class="text-center">
+                    <Upload class="w-12 h-12 text-gray-400 mx-auto mb-2" />
+                    <span class="text-gray-400 text-sm">Image Preview</span>
+                  </div>
+                </div>
+              </div>
+              <div class="lg:col-span-2 space-y-4">
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Upload Image</label>
+                  <input type="file" accept="image/*" @change="handleImageChange"
+                    class="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-green-50 file:text-green-700 hover:file:bg-green-100 transition-colors duration-200" />
+                  <div v-if="form.errors.featured_image" class="text-red-600 text-sm mt-1">{{ form.errors.featured_image
+                  }}</div>
+                  <p class="text-xs text-gray-500 mt-1">PNG, JPG up to 5MB. Recommended: 1200x630px</p>
+                </div>
+                <div>
+                  <label class="block text-sm font-medium text-gray-700 mb-2">Image Caption</label>
+                  <input v-model="form.image_caption" type="text"
+                    class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors duration-200"
+                    placeholder="Optional image caption" />
+                </div>
+              </div>
             </div>
           </div>
-        </div>
 
-        <!-- SEO -->
-        <div>
-          <label class="block text-sm font-medium mb-1">Meta Description (optional)</label>
-          <input v-model="form.meta_description" class="w-full border rounded px-3 py-2" />
-        </div>
+          <!-- Content Section -->
+          <div class="space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+              <h2 class="text-lg font-medium text-gray-900">Article Content</h2>
+            </div>
 
-        <!-- Submit -->
-        <div class="flex justify-end gap-3">
-          <Link :href="route('admin.news.index')" class="px-4 py-2 border rounded">Cancel</Link>
-          <button :disabled="form.processing" class="px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800">
-            {{ form.processing ? 'Saving…' : 'Publish / Save' }}
-          </button>
-        </div>
-      </form>
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Article Body</label>
+              <div class="border border-gray-300 rounded-md overflow-hidden">
+                <QuillEditor v-model:content="form.content" content-type="html" toolbar="full" theme="snow"
+                  style="min-height: 300px;" />
+              </div>
+              <div v-if="form.errors.content" class="text-red-600 text-sm mt-1">{{ form.errors.content }}</div>
+            </div>
+          </div>
+
+          <!-- Quote Section -->
+          <div class="space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+              <h2 class="text-lg font-medium text-gray-900">Featured Quote (Optional)</h2>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Quote Text</label>
+                <textarea v-model="form.quote_text" rows="3"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors duration-200"
+                  placeholder="Inspirational or relevant quote"></textarea>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Quote Author</label>
+                <input v-model="form.quote_author" type="text"
+                  class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors duration-200"
+                  placeholder="Author name" />
+              </div>
+            </div>
+          </div>
+
+          <!-- Key Highlights Section -->
+          <div class="space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+              <div class="flex items-center justify-between">
+                <h2 class="text-lg font-medium text-gray-900">Key Highlights (Optional)</h2>
+                <button type="button" @click="addHighlight"
+                  class="inline-flex items-center px-3 py-1.5 text-sm text-green-700 hover:text-green-800 hover:bg-green-50 rounded-md transition-colors duration-200">
+                  <Plus class="w-4 h-4 mr-1" />
+                  Add Highlight
+                </button>
+              </div>
+            </div>
+
+            <div class="space-y-3" v-if="form.key_highlights.length > 0">
+              <div v-for="(highlight, i) in form.key_highlights" :key="i"
+                class="flex items-center space-x-3 p-4 bg-gray-50 rounded-md border">
+                <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  <input v-model="highlight.label" placeholder="Label (e.g., Location)"
+                    class="px-3 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors duration-200" />
+                  <input v-model="highlight.value" placeholder="Value (e.g., 8 Divisions)"
+                    class="px-3 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors duration-200" />
+                </div>
+                <button type="button" @click="removeHighlight(i)"
+                  class="p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors duration-200">
+                  <Minus class="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- SEO Section -->
+          <div class="space-y-6">
+            <div class="border-b border-gray-200 pb-4">
+              <h2 class="text-lg font-medium text-gray-900">SEO Settings</h2>
+            </div>
+
+            <div>
+              <label class="block text-sm font-medium text-gray-700 mb-2">Meta Description</label>
+              <textarea v-model="form.meta_description" rows="2"
+                class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors duration-200"
+                placeholder="Brief description for search engines (optional)"></textarea>
+              <p class="text-xs text-gray-500 mt-1">Recommended: 150-160 characters</p>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex justify-end space-x-4 pt-6 border-t border-gray-200">
+            <Link :href="route('admin.news.index')"
+              class="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors duration-200">
+            Cancel
+            </Link>
+            <button type="submit" :disabled="form.processing"
+              class="inline-flex items-center px-6 py-2 bg-green-700 hover:bg-green-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-md transition-colors duration-200">
+              <Save class="w-4 h-4 mr-2" />
+              {{ form.processing ? 'Saving...' : 'Save Article' }}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   </AppLayout>
 </template>
+
+<style>
+/* Custom Quill editor styling */
+.ql-toolbar {
+  border-top: none !important;
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: 1px solid #d1d5db !important;
+}
+
+.ql-container {
+  border-left: none !important;
+  border-right: none !important;
+  border-bottom: none !important;
+  font-size: 14px;
+}
+
+.ql-editor {
+  min-height: 300px;
+  padding: 16px;
+}
+</style>

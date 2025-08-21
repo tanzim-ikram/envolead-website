@@ -1,13 +1,13 @@
 <script setup>
 import AppLayout from '@/layouts/AppLayout.vue';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { UserPlus } from 'lucide-vue-next';
+import { UserPlus, Pencil, Trash2 } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 defineProps({ members: Array });
 
-const deleteMember = (id) => {
-    if (confirm('Are you sure you want to delete this member?')) {
+const deleteMember = (id, name) => {
+    if (confirm(`Are you sure you want to delete "${name}"? This action cannot be undone.`)) {
         router.delete(route('admin.team.destroy', id));
     }
 };
@@ -15,6 +15,7 @@ const deleteMember = (id) => {
 const breadcrumbs = computed(() => [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Team', href: '/admin/team' },
+    { title: 'Update Member Info', href: '/admin/team/manage' },
 ]);
 </script>
 
@@ -31,11 +32,9 @@ const breadcrumbs = computed(() => [
                     <p class="text-gray-600">Edit or remove existing team members.</p>
                 </div>
                 <Link :href="route('admin.team.create')"
-                    class="inline-block px-5 py-2 text-sm font-medium bg-green-700 text-white rounded-md hover:bg-green-800 transition">
-                <div>
-                    <UserPlus class="mr-2 w-5 h-5 inline" />
-                    Add New Member
-                </div>
+                    class="inline-flex items-center px-5 py-2 text-sm font-medium bg-green-700 text-white rounded-md hover:bg-green-800 transition-colors duration-200">
+                <UserPlus class="mr-2 w-5 h-5" />
+                Add New Member
                 </Link>
             </div>
 
@@ -54,7 +53,7 @@ const breadcrumbs = computed(() => [
                                 <th class="px-6 py-3">Name</th>
                                 <th class="px-6 py-3">Designation</th>
                                 <th class="px-6 py-3">Email</th>
-                                <th class="px-6 py-3 text-center">Action</th>
+                                <th class="px-6 py-3 text-right">Actions</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100">
@@ -72,15 +71,17 @@ const breadcrumbs = computed(() => [
                                 <td class="px-6 py-4 text-gray-700">
                                     {{ member.email || '—' }}
                                 </td>
-                                <td class="px-6 py-4 text-center space-x-2">
-                                    <Link :href="route('admin.team.edit', member.id)"
-                                        class="text-blue-600 font-medium hover:underline">
-                                    Update
-                                    </Link>
-                                    <button @click="deleteMember(member.id)"
-                                        class="text-red-600 font-medium hover:underline">
-                                        Delete
-                                    </button>
+                                <td class="px-6 py-4 text-right">
+                                    <div class="flex items-center justify-end space-x-2">
+                                        <Link :href="route('admin.team.edit', member.id)"
+                                            class="inline-flex items-center p-2 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded-md transition-colors duration-200">
+                                        <Pencil class="w-4 h-4" />
+                                        </Link>
+                                        <button @click="deleteMember(member.id, member.name)"
+                                            class="inline-flex items-center p-2 text-red-600 hover:text-red-800 hover:bg-red-50 rounded-md transition-colors duration-200">
+                                            <Trash2 class="w-4 h-4" />
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>
                         </tbody>

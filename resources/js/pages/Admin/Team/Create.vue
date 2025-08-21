@@ -35,6 +35,7 @@ const submit = () => {
 const breadcrumbs = computed(() => [
     { title: 'Dashboard', href: '/dashboard' },
     { title: 'Team', href: '/admin/team' },
+    { title: 'Add Team Member', href: '/admin/team/create' },
 ]);
 </script>
 
@@ -48,7 +49,7 @@ const breadcrumbs = computed(() => [
                 <p class="text-gray-600">Enter new member information</p>
             </div>
 
-            <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+            <div class="bg-white rounded-lg shadow-sm border-2 border-gray-200">
                 <form @submit.prevent="submit" class="p-8">
                     <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         <div class="lg:col-span-2 space-y-6">
