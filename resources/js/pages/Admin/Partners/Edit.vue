@@ -10,7 +10,6 @@ const form = useForm({
     partner_name: props.partner.partner_name,
     type: props.partner.type as 'clubs' | 'company',
     logo: null as File | null,
-    _method: 'PUT',
 });
 
 const previewUrl = ref<string | null>(props.partner.logo_url || null);
@@ -24,7 +23,7 @@ const handleFileChange = (e: Event) => {
 };
 
 const submit = () => {
-    form.post(route('admin.partners.update', props.partner.id), {
+    form.put(route('admin.partners.update', props.partner.id), {
         forceFormData: true,
     });
 };

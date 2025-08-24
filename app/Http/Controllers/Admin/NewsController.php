@@ -17,7 +17,7 @@ class NewsController extends Controller
     {
         $news = News::orderByDesc('created_at')->paginate(12);
 
-        // Transform the paginated data to ensure proper structure
+        // Transform data with public URL for featured_image
         $news->getCollection()->transform(function ($item) {
             return [
                 'id' => $item->id,
@@ -26,6 +26,9 @@ class NewsController extends Controller
                 'excerpt' => $item->excerpt,
                 'content' => $item->content,
                 'featured_image' => $item->featured_image,
+                'featured_image_url' => $item->featured_image
+                    ? Storage::url($item->featured_image)
+                    : null,
                 'image_caption' => $item->image_caption,
                 'quote_text' => $item->quote_text,
                 'quote_author' => $item->quote_author,
@@ -72,7 +75,6 @@ class NewsController extends Controller
             $validated['featured_image'] = $request->file('featured_image')->store('news-images', 'public');
         }
 
-        // Ensure published_at is set when creating as published
         if (($validated['status'] ?? 'draft') === 'published' && empty($validated['published_at'])) {
             $validated['published_at'] = now();
         }
@@ -83,24 +85,10 @@ class NewsController extends Controller
     }
 
     /**
-     * Display the specified resource.
-     */
-    public function show(News $news)
-    {
-        // Admin show should point to the public-facing page for published news
-        if ($news->status === 'published') {
-            return redirect()->route('news.show', $news->slug);
-        }
-
-        abort(404);
-    }
-
-    /**
      * Show the form for editing the specified resource.
      */
     public function edit(News $news)
     {
-        // Transform the news data to ensure proper structure
         $newsData = [
             'id' => $news->id,
             'title' => $news->title,
@@ -108,6 +96,9 @@ class NewsController extends Controller
             'excerpt' => $news->excerpt,
             'content' => $news->content,
             'featured_image' => $news->featured_image,
+            'featured_image_url' => $news->featured_image
+                ? Storage::url($news->featured_image)
+                : null,
             'image_caption' => $news->image_caption,
             'quote_text' => $news->quote_text,
             'quote_author' => $news->quote_author,
@@ -127,34 +118,71 @@ class NewsController extends Controller
      */
     public function update(Request $request, News $news)
     {
+        // Get current values as defaults
+        $currentData = [
+            'title' => $news->title,
+            'excerpt' => $news->excerpt,
+            'content' => $news->content,
+            'image_caption' => $news->image_caption,
+            'quote_text' => $news->quote_text,
+            'quote_author' => $news->quote_author,
+            'key_highlights' => $news->key_highlights,
+            'published_at' => $news->published_at,
+            'status' => $news->status,
+            'meta_description' => $news->meta_description,
+        ];
+
+        // Validate with nullable fields for most inputs
         $validated = $request->validate([
-            'title' => 'required|string|max:255',
+            'title' => 'nullable|string|max:255',
             'excerpt' => 'nullable|string',
-            'content' => 'required|string',
+            'content' => 'nullable|string',
             'featured_image' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'image_caption' => 'nullable|string',
             'quote_text' => 'nullable|string',
             'quote_author' => 'nullable|string',
             'key_highlights' => 'nullable|array',
             'published_at' => 'nullable|date',
-            'status' => 'required|in:draft,published,archived',
+            'status' => 'nullable|in:draft,published,archived',
             'meta_description' => 'nullable|string|max:160',
         ]);
 
+        // Merge validated data with current data, giving preference to validated (submitted) data
+        $updateData = array_merge($currentData, array_filter($validated, function ($value) {
+            return $value !== null && $value !== '';
+        }));
+
+        // Ensure required fields are not empty after merge
+        if (empty($updateData['title'])) {
+            return back()->withErrors(['title' => 'The title field is required.']);
+        }
+
+        if (empty($updateData['content'])) {
+            return back()->withErrors(['content' => 'The content field is required.']);
+        }
+
+        if (empty($updateData['status'])) {
+            $updateData['status'] = $news->status;
+        }
+
+        // Handle featured image upload
         if ($request->hasFile('featured_image')) {
             // Delete old image if exists
-            if ($news->featured_image) {
+            if ($news->featured_image && Storage::disk('public')->exists($news->featured_image)) {
                 Storage::disk('public')->delete($news->featured_image);
             }
-            $validated['featured_image'] = $request->file('featured_image')->store('news-images', 'public');
+            $updateData['featured_image'] = $request->file('featured_image')->store('news-images', 'public');
         }
 
-        // Ensure published_at exists if status becomes published without a date
-        if (($validated['status'] ?? $news->status) === 'published' && empty($validated['published_at'])) {
-            $validated['published_at'] = $news->published_at ?: now();
+        // Handle published_at logic
+        if ($updateData['status'] === 'published') {
+            if (empty($updateData['published_at'])) {
+                $updateData['published_at'] = $news->published_at ?: now();
+            }
         }
 
-        $news->update($validated);
+        // Update the news record
+        $news->update($updateData);
 
         return redirect()->route('admin.news.index')->with('success', 'News updated successfully!');
     }
@@ -164,8 +192,7 @@ class NewsController extends Controller
      */
     public function destroy(News $news)
     {
-        // Delete featured image if exists
-        if ($news->featured_image) {
+        if ($news->featured_image && Storage::disk('public')->exists($news->featured_image)) {
             Storage::disk('public')->delete($news->featured_image);
         }
 
@@ -175,7 +202,7 @@ class NewsController extends Controller
     }
 
     /**
-     * Toggle news status
+     * Toggle news status.
      */
     public function toggleStatus(News $news)
     {

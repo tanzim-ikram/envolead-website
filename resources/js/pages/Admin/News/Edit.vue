@@ -9,23 +9,30 @@ import { ref } from 'vue'
 const props = defineProps<{ news: any }>()
 
 const form = useForm({
-    title: props.news.title ?? '',
-    excerpt: props.news.excerpt ?? '',
-    content: props.news.content ?? '',
+    title: props.news.title || '',
+    excerpt: props.news.excerpt || '',
+    content: props.news.content || '',
     featured_image: null as File | null,
-    image_caption: props.news.image_caption ?? '',
-    quote_text: props.news.quote_text ?? '',
-    quote_author: props.news.quote_author ?? '',
-    key_highlights: props.news.key_highlights ?? [{ label: '', value: '' }],
-    published_at: (props.news.published_at || '').slice(0, 10),
-    status: props.news.status ?? 'draft',
-    meta_description: props.news.meta_description ?? '',
+    image_caption: props.news.image_caption || '',
+    quote_text: props.news.quote_text || '',
+    quote_author: props.news.quote_author || '',
+    key_highlights: props.news.key_highlights && props.news.key_highlights.length > 0 ? props.news.key_highlights : [],
+    published_at: props.news.published_at ? props.news.published_at.slice(0, 10) : '',
+    status: props.news.status || 'draft',
+    meta_description: props.news.meta_description || '',
 })
 
 const imagePreview = ref<string | null>(null)
 
-const addHighlight = () => form.key_highlights.push({ label: '', value: '' })
-const removeHighlight = (i: number) => form.key_highlights.splice(i, 1)
+const addHighlight = () => {
+    if (!form.key_highlights) form.key_highlights = []
+    form.key_highlights.push({ label: '', value: '' })
+}
+const removeHighlight = (i: number) => {
+    if (form.key_highlights && form.key_highlights.length > i) {
+        form.key_highlights.splice(i, 1)
+    }
+}
 
 const handleImageChange = (e: Event) => {
     const file = (e.target as HTMLInputElement)?.files?.[0]
@@ -36,11 +43,63 @@ const handleImageChange = (e: Event) => {
 }
 
 const submit = () => {
-    form.post(route('admin.news.update', props.news.id), {
-        method: 'put',
-        forceFormData: true,
-        preserveScroll: true,
+    // Simple validation
+    if (!form.title || !form.title.trim()) {
+        alert('Title is required')
+        return
+    }
+
+    if (!form.content || !form.content.trim()) {
+        alert('Content is required')
+        return
+    }
+
+    if (!form.status) {
+        alert('Status is required')
+        return
+    }
+
+    console.log('Submitting form with data:', {
+        title: form.title,
+        content: form.content,
+        status: form.status,
+        key_highlights: form.key_highlights
     })
+
+    // Use the correct method - either form.put() or form.post() with proper _method
+    if (form.featured_image) {
+        // If there's a file, use POST with _method override
+        form.transform((data) => ({
+            ...data,
+            _method: 'PUT'
+        })).post(route('admin.news.update', props.news.id), {
+            forceFormData: true,
+            preserveScroll: true,
+            onSuccess: () => {
+                console.log('Update successful')
+            },
+            onError: (errors) => {
+                console.log('Validation errors:', errors)
+            },
+            onFinish: () => {
+                console.log('Request finished')
+            }
+        })
+    } else {
+        // If no file, use regular PUT
+        form.put(route('admin.news.update', props.news.id), {
+            preserveScroll: true,
+            onSuccess: () => {
+                console.log('Update successful')
+            },
+            onError: (errors) => {
+                console.log('Validation errors:', errors)
+            },
+            onFinish: () => {
+                console.log('Request finished')
+            }
+        })
+    }
 }
 
 const breadcrumbs = [
@@ -83,7 +142,7 @@ const breadcrumbs = [
 
                         <!-- Title -->
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Article Title</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Article Title *</label>
                             <input v-model="form.title" type="text"
                                 class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors duration-200"
                                 placeholder="Enter article title" required />
@@ -105,14 +164,17 @@ const breadcrumbs = [
                             <div>
                                 <label class="text-sm font-medium text-gray-700 mb-2 flex items-center">
                                     <Eye class="w-4 h-4 mr-1" />
-                                    Status
+                                    Status *
                                 </label>
-                                <select v-model="form.status"
+                                <select v-model="form.status" required
                                     class="w-full px-4 py-2 border border-gray-300 rounded-md focus:border-green-500 focus:outline-none focus:ring-1 focus:ring-green-500 transition-colors duration-200">
                                     <option value="draft">Draft</option>
                                     <option value="published">Published</option>
                                     <option value="archived">Archived</option>
                                 </select>
+                                <div v-if="form.errors.status" class="text-red-600 text-sm mt-1">{{ form.errors.status
+                                }}
+                                </div>
                             </div>
                         </div>
 
@@ -139,15 +201,14 @@ const breadcrumbs = [
                                     <!-- Show new preview if file selected, otherwise show existing image -->
                                     <img v-if="imagePreview" :src="imagePreview" class="w-full h-full object-cover"
                                         alt="New Preview" />
-                                    <img v-else-if="props.news.featured_image"
-                                        :src="`/storage/${props.news.featured_image}`"
+                                    <img v-else-if="props.news.featured_image_url" :src="props.news.featured_image_url"
                                         class="w-full h-full object-cover" alt="Current Image" />
                                     <div v-else class="text-center">
                                         <Upload class="w-12 h-12 text-gray-400 mx-auto mb-2" />
                                         <span class="text-gray-400 text-sm">No Image</span>
                                     </div>
                                 </div>
-                                <p v-if="props.news.featured_image && !imagePreview"
+                                <p v-if="props.news.featured_image_url && !imagePreview"
                                     class="text-xs text-gray-500 mt-2 text-center">
                                     Current Image
                                 </p>
@@ -184,7 +245,7 @@ const breadcrumbs = [
                         </div>
 
                         <div>
-                            <label class="block text-sm font-medium text-gray-700 mb-2">Article Body</label>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">Article Body *</label>
                             <div class="border border-gray-300 rounded-md overflow-hidden">
                                 <QuillEditor v-model:content="form.content" content-type="html" toolbar="full"
                                     theme="snow" style="min-height: 300px;" />
@@ -229,7 +290,7 @@ const breadcrumbs = [
                             </div>
                         </div>
 
-                        <div class="space-y-3" v-if="form.key_highlights.length > 0">
+                        <div class="space-y-3" v-if="form.key_highlights && form.key_highlights.length > 0">
                             <div v-for="(highlight, i) in form.key_highlights" :key="i"
                                 class="flex items-center space-x-3 p-4 bg-gray-50 rounded-md border">
                                 <div class="flex-1 grid grid-cols-1 md:grid-cols-2 gap-3">

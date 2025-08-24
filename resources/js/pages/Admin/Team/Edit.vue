@@ -35,9 +35,8 @@ const submit = () => {
         form[key] = changedData[key];
     });
 
-    // Submit as POST but spoof method to PUT
-    form.post(route('admin.team.update', props.member.id), {
-        method: 'put',
+    // Submit as PUT request
+    form.put(route('admin.team.update', props.member.id), {
         forceFormData: true,
         preserveScroll: true,
     });
