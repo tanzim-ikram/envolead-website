@@ -4,8 +4,61 @@
 @import "tailwindcss/utilities";
 
 * {
-  font-family: 'Exo', sans-serif;
+    font-family: 'Exo', sans-serif;
 }
+
+.article-content h1 {
+    font-size: 2.25rem;
+    font-weight: 800;
+    margin: 0.67em 0;
+}
+
+.article-content h2 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    margin: 0.67em 0;
+}
+
+.article-content h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin: 0.67em 0;
+}
+
+.article-content h4 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin: 0.67em 0;
+}
+
+.article-content h5 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0.67em 0;
+}
+
+.article-content h6 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 0.67em 0;
+}
+
+.article-content p {
+    margin: 0.75em 0;
+    line-height: 1.6;
+}
+
+.article-content ul {
+    list-style: disc;
+    margin-left: 1.25em;
+}
+
+.article-content ol {
+    list-style: decimal;
+    margin-left: 1.25em;
+}
+
+
 @import 'tailwindcss';
 
 @import 'tw-animate-css';
@@ -75,6 +128,7 @@
   color utility to any element that depends on these defaults.
 */
 @layer base {
+
     *,
     ::after,
     ::before,
@@ -85,6 +139,7 @@
 }
 
 @layer utilities {
+
     body,
     html {
         --font-sans:
@@ -169,6 +224,7 @@
     * {
         @apply border-border outline-ring/50;
     }
+
     body {
         @apply bg-background text-foreground;
     }

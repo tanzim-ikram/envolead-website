@@ -38,7 +38,7 @@ const dateLabel = new Date(props.news.published_at).toLocaleString('en-US', {
         </figure>
 
         <!-- ✅ Rich Content styled with Tailwind Typography -->
-        <div class="prose prose-green max-w-none mt-8" v-html="props.news.content"></div>
+        <div class="article-content max-w-none mt-8" v-html="props.news.content"></div>
 
         <!-- Quote stays separate -->
         <blockquote v-if="props.news.quote_text" class="border-l-4 border-green-700 pl-4 italic text-gray-800 mt-8">
