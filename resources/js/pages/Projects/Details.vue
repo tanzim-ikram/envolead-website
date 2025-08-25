@@ -108,23 +108,5 @@ function formatDate(dateString) {
 </script>
 
 <style>
-/* Custom prose styles for project content */
-.prose {
-  @apply text-gray-700;
-}
 
-.prose h1,
-.prose h2,
-.prose h3,
-.prose h4 {
-  @apply text-gray-900 font-bold;
-}
-
-.prose a {
-  @apply text-green-700 hover:text-green-800;
-}
-
-.prose img {
-  @apply rounded-lg shadow-sm;
-}
 </style>

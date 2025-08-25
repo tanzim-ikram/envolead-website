@@ -1,7 +1,8 @@
 <template>
+    <Navbar />
     <section class="bg-[#e9f1ed] py-20 px-[10%]">
         <div class="text-center mb-16">
-            <h2 class="text-4xl font-bold flex items-bottom text-neutral-900 justify-center">
+            <h2 class="text-4xl font-bold flex items-bottom text-neutral-900">
                 <span class="h-8.5 w-1.5 bg-green-700 mr-5"></span>
                 Projects
             </h2>
@@ -39,14 +40,15 @@
             </div>
         </div>
 
-        <div v-if="realProjects.length > 4" class="flex justify-center mt-16">
+        <div v-if="realProjects.length > 8" class="flex justify-center mt-16">
             <button @click="toggleShowAll"
                 class="bg-green-800 hover:bg-green-900 text-white px-6 py-3 rounded font-semibold transition flex justify-center items-center text-base">
                 {{ showAll ? "Show less projects" : "Show more projects" }}
-                <Icon icon="tabler:arrow-right" width="24" height="24" class="ml-2" />
+                <Icon :icon="showAll ? 'tabler:arrow-up' : 'tabler:arrow-right'" width="24" height="24" class="ml-2" />
             </button>
         </div>
     </section>
+    <Footer />
 </template>
 
 <script setup>
@@ -54,6 +56,8 @@ import { ref, computed } from 'vue'
 import { Icon } from "@iconify/vue"
 import { MoveRight } from 'lucide-vue-next'
 import { Link } from '@inertiajs/vue3'
+import Navbar from '@/components/Navbar.vue';
+import Footer from '@/components/Footer.vue';
 
 const props = defineProps({
     projects: Array
@@ -66,23 +70,7 @@ const realProjects = computed(() => props.projects || [])
 
 const displayedProjects = computed(() => {
     const real = realProjects.value
-    const visibleCount = showAll.value ? real.length : Math.min(8, real.length)
-    const visibleReal = real.slice(0, visibleCount)
-
-    // Add dummy projects if we have less than 8 and not showing all
-    if (!showAll.value && real.length < 8) {
-        const dummyCount = 8 - real.length
-        const dummyProjects = Array.from({ length: dummyCount }, (_, i) => ({
-            temp_id: `dummy_${i}`,
-            project_name: `Sample Project ${i + 1}`,
-            short_description: 'This is a sample project description. More projects coming soon!',
-            icon: null,
-            slug: null
-        }))
-        return [...visibleReal, ...dummyProjects]
-    }
-
-    return visibleReal
+    return showAll.value ? real : real.slice(0, 8)
 })
 
 function toggleShowAll() {

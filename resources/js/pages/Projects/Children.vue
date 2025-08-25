@@ -45,25 +45,25 @@
             </div>
         </div>
 
-        <!-- Children Projects Grid -->
+        <!-- Children Projects Grid - Matching EnvoComms Design -->
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-            <div v-if="children.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <div v-if="children.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                 <div v-for="child in children" :key="child.id"
-                    class="bg-white rounded-lg shadow hover:shadow-md transition-all duration-200 hover:-translate-y-1 overflow-hidden">
-                    <div class="p-6">
-                        <div class="flex items-center mb-4">
-                            <img :src="child.icon ? `/storage/${child.icon}` : '/images/default-project-icon.png'"
-                                :alt="child.project_name + ' icon'" class="h-12 w-12 object-contain mr-3" />
-                            <h3 class="text-lg font-semibold text-gray-900">{{ child.project_name }}</h3>
-                        </div>
+                    class="bg-white rounded-lg shadow hover:shadow-md transition overflow-hidden flex flex-col">
+                    <div class="p-6 flex-grow">
+                        <img :src="child.icon ? `/storage/${child.icon}` : '/images/default-project-icon.png'"
+                            :alt="child.project_name + ' icon'" class="h-16 w-16 object-contain mx-auto mb-4" />
 
-                        <p v-if="child.short_description" class="text-gray-600 text-sm mb-4 line-clamp-3">
+                        <h3 class="text-xl font-bold text-green-800 text-center">{{ child.project_name }}</h3>
+                        <p v-if="child.short_description" class="text-gray-600 text-sm mt-2 text-center">
                             {{ child.short_description }}
                         </p>
+                    </div>
 
+                    <div class="px-6 pb-6">
                         <Link :href="route('projects.show', child.slug)"
-                            class="inline-flex items-center text-green-700 hover:text-green-800 font-medium text-sm transition-colors">
-                        View Details
+                            class="text-green-700 font-semibold text-sm flex justify-center items-center hover:underline">
+                        View project details
                         <MoveRight width="16" height="16" stroke-width="1.5" class="ml-1" />
                         </Link>
                     </div>
@@ -95,12 +95,3 @@ defineProps({
     breadcrumb: Array
 })
 </script>
-
-<style scoped>
-.line-clamp-3 {
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-}
-</style>

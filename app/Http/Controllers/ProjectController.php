@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
+use Illuminate\Validation\Rule;
 
 class ProjectController extends Controller
 {
@@ -30,13 +31,14 @@ class ProjectController extends Controller
     {
         $project = Project::with(['parent', 'children', 'detail'])
             ->where('slug', $slug)
+            ->active()
             ->firstOrFail();
 
         // If project has children, show children grid
         if ($project->hasChildren()) {
             return Inertia::render('Projects/Children', [
                 'project' => $project,
-                'children' => $project->children()->active()->get(),
+                'children' => $project->children()->active()->orderBy('sort_order')->get(),
                 'breadcrumb' => $project->getProjectPath()
             ]);
         }
@@ -52,8 +54,8 @@ class ProjectController extends Controller
     public function manage()
     {
         $projects = Project::with(['parent', 'children'])
-            ->orderBy('parent_id')
-            ->orderBy('sort_order')
+            ->orderBy('parent_id', 'asc')
+            ->orderBy('sort_order', 'asc')
             ->get();
 
         return Inertia::render('Admin/Projects/Index', [
@@ -64,7 +66,10 @@ class ProjectController extends Controller
     // Show create form
     public function create()
     {
-        $parentProjects = Project::topLevel()->active()->get();
+        $parentProjects = Project::topLevel()
+            ->active()
+            ->orderBy('project_name')
+            ->get(['id', 'project_name']);
 
         return Inertia::render('Admin/Projects/Create', [
             'parentProjects' => $parentProjects
@@ -75,28 +80,45 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'project_name' => 'required|string|max:255',
-            'short_description' => 'nullable|string',
+            'project_name' => 'required|string|max:255|unique:projects,project_name',
+            'short_description' => 'nullable|string|max:500',
             'parent_id' => 'nullable|exists:projects,id',
-            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'sort_order' => 'nullable|integer|min:0',
         ]);
 
+        // Generate unique slug
+        $baseSlug = Str::slug($validated['project_name']);
+        $slug = $baseSlug;
+        $counter = 1;
+
+        while (Project::where('slug', $slug)->exists()) {
+            $slug = $baseSlug . '-' . $counter;
+            $counter++;
+        }
+
+        $validated['slug'] = $slug;
+
         // Handle icon upload
         if ($request->hasFile('icon')) {
-            $validated['icon'] = $request->file('icon')->store('projects/icons', 'public');
+            $iconPath = $request->file('icon')->store('projects/icons', 'public');
+            $validated['icon'] = $iconPath;
         }
 
         // Set sort order if not provided
         if (!isset($validated['sort_order'])) {
-            $maxOrder = Project::where('parent_id', $validated['parent_id'] ?? null)->max('sort_order') ?? 0;
+            $maxOrder = Project::where('parent_id', $validated['parent_id'] ?? null)
+                ->max('sort_order') ?? 0;
             $validated['sort_order'] = $maxOrder + 1;
         }
+
+        // Set default status
+        $validated['status'] = 'active';
 
         $project = Project::create($validated);
 
         return redirect()->route('admin.projects.index')
-            ->with('success', 'Project created successfully!');
+            ->with('success', 'Project "' . $project->project_name . '" created successfully!');
     }
 
     // Show edit form
@@ -105,7 +127,8 @@ class ProjectController extends Controller
         $parentProjects = Project::topLevel()
             ->where('id', '!=', $project->id)
             ->active()
-            ->get();
+            ->orderBy('project_name')
+            ->get(['id', 'project_name']);
 
         return Inertia::render('Admin/Projects/Edit', [
             'project' => $project->load(['parent', 'detail']),
@@ -117,32 +140,61 @@ class ProjectController extends Controller
     public function update(Request $request, Project $project)
     {
         $validated = $request->validate([
-            'project_name' => 'required|string|max:255',
-            'short_description' => 'nullable|string',
-            'parent_id' => 'nullable|exists:projects,id',
-            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
+            'project_name' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('projects', 'project_name')->ignore($project->id)
+            ],
+            'short_description' => 'nullable|string|max:500',
+            'parent_id' => [
+                'nullable',
+                'exists:projects,id',
+                function ($attribute, $value, $fail) use ($project) {
+                    if ($value == $project->id) {
+                        $fail('A project cannot be its own parent.');
+                    }
+
+                    // Check for circular references
+                    if ($value && $this->wouldCreateCircularReference($project, $value)) {
+                        $fail('This would create a circular reference.');
+                    }
+                }
+            ],
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
             'sort_order' => 'nullable|integer|min:0',
-            'status' => 'in:active,inactive,archived'
+            'status' => 'required|in:active,inactive,archived'
         ]);
 
-        // Prevent self-referencing or circular references
-        if (isset($validated['parent_id']) && $validated['parent_id'] == $project->id) {
-            return back()->withErrors(['parent_id' => 'A project cannot be its own parent.']);
+        // Update slug if project name changed
+        if ($validated['project_name'] !== $project->project_name) {
+            $baseSlug = Str::slug($validated['project_name']);
+            $slug = $baseSlug;
+            $counter = 1;
+
+            while (Project::where('slug', $slug)->where('id', '!=', $project->id)->exists()) {
+                $slug = $baseSlug . '-' . $counter;
+                $counter++;
+            }
+
+            $validated['slug'] = $slug;
         }
 
         // Handle icon upload
         if ($request->hasFile('icon')) {
             // Delete old icon if exists
-            if ($project->icon) {
+            if ($project->icon && Storage::disk('public')->exists($project->icon)) {
                 Storage::disk('public')->delete($project->icon);
             }
-            $validated['icon'] = $request->file('icon')->store('projects/icons', 'public');
+
+            $iconPath = $request->file('icon')->store('projects/icons', 'public');
+            $validated['icon'] = $iconPath;
         }
 
         $project->update($validated);
 
         return redirect()->route('admin.projects.index')
-            ->with('success', 'Project updated successfully!');
+            ->with('success', 'Project "' . $project->project_name . '" updated successfully!');
     }
 
     // Delete project
@@ -150,11 +202,14 @@ class ProjectController extends Controller
     {
         // Check if project has children
         if ($project->hasChildren()) {
-            return back()->withErrors(['error' => 'Cannot delete project with child projects. Please delete or reassign child projects first.']);
+            return redirect()->route('admin.projects.index')
+                ->with('error', 'Cannot delete project "' . $project->project_name . '" because it has child projects. Please delete or reassign child projects first.');
         }
 
+        $projectName = $project->project_name;
+
         // Delete associated icon
-        if ($project->icon) {
+        if ($project->icon && Storage::disk('public')->exists($project->icon)) {
             Storage::disk('public')->delete($project->icon);
         }
 
@@ -166,7 +221,7 @@ class ProjectController extends Controller
         $project->delete();
 
         return redirect()->route('admin.projects.index')
-            ->with('success', 'Project deleted successfully!');
+            ->with('success', 'Project "' . $projectName . '" deleted successfully!');
     }
 
     // Update project details (content)
@@ -174,7 +229,7 @@ class ProjectController extends Controller
     {
         $validated = $request->validate([
             'title' => 'required|string|max:255',
-            'content' => 'required|string'
+            'content' => 'required|string|min:10'
         ]);
 
         $validated['project_id'] = $project->id;
@@ -185,5 +240,20 @@ class ProjectController extends Controller
         );
 
         return back()->with('success', 'Project details updated successfully!');
+    }
+
+    // Helper method to check for circular references
+    private function wouldCreateCircularReference(Project $project, $parentId)
+    {
+        $current = Project::find($parentId);
+
+        while ($current) {
+            if ($current->id === $project->id) {
+                return true;
+            }
+            $current = $current->parent;
+        }
+
+        return false;
     }
 }
