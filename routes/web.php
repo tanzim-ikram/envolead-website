@@ -10,6 +10,7 @@ use App\Models\Partner;
 use App\Http\Controllers\Admin\AdminTeamController;
 use App\Http\Controllers\Admin\NewsController as AdminNewsController;
 use App\Http\Controllers\Admin\PartnerController;
+use App\Http\Controllers\ProjectController;
 use App\Models\News;
 
 // Helper function to get partner logo URL
@@ -65,7 +66,26 @@ Route::prefix('admin/team')->name('admin.team.')->group(function () {
     Route::delete('/{id}', [AdminTeamController::class, 'destroy'])->name('destroy');
 });
 
-// ------------------ Public (no auth) ------------------
+// Public routes for viewing projects
+Route::get('/projects', [ProjectController::class, 'index'])->name('projects.index');
+Route::get('/projects/{slug}', [ProjectController::class, 'show'])->name('projects.show');
+
+// Admin routes (protected by auth middleware)
+Route::middleware(['auth'])->group(function () {
+    Route::prefix('admin')->name('admin.')->group(function () {
+        Route::prefix('projects')->name('projects.')->group(function () {
+            Route::get('/', [ProjectController::class, 'manage'])->name('index');
+            Route::get('/create', [ProjectController::class, 'create'])->name('create');
+            Route::post('/', [ProjectController::class, 'store'])->name('store');
+            Route::get('/{project}/edit', [ProjectController::class, 'edit'])->name('edit');
+            Route::put('/{project}', [ProjectController::class, 'update'])->name('update');
+            Route::delete('/{project}', [ProjectController::class, 'destroy'])->name('destroy');
+            Route::post('/{project}/details', [ProjectController::class, 'updateDetails'])->name('update-details');
+        });
+    });
+});
+
+// ------------------ News Public Routes (no auth) ------------------
 Route::get('/news', function () {
     $news = News::published()->latest()->paginate(12);
 
@@ -114,7 +134,7 @@ Route::get('/news/{news:slug}', function (News $news) {
     return Inertia::render('News/Show', ['news' => $newsData]);
 })->name('news.show');
 
-// ------------------ Admin (auth) ------------------
+// ------------------ News Admin Routes (auth) ------------------
 Route::middleware(['auth', 'verified'])->group(function () {
     Route::prefix('admin')->name('admin.')->group(function () {
         // News management

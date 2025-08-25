@@ -15,6 +15,15 @@ const mainNavItems: NavItem[] = [
         icon: LayoutGrid,
     },
     {
+        title: 'Projects',
+        href: '/admin/projects',
+        icon: Handshake,
+        items: [
+            { title: 'Add new project', href: '/admin/projects/create', icon: CirclePlus },
+            { title: 'Manage projects', href: '/admin/projects', icon: SquarePen },
+        ],
+    },
+    {
         title: 'Team',
         href: '/team',
         icon: UsersRound,
@@ -27,7 +36,7 @@ const mainNavItems: NavItem[] = [
     {
         title: 'Partners',
         href: '/admin/partners',
-        icon: Handshake ,
+        icon: Handshake,
         items: [
             { title: 'Add new partner', href: '/admin/partners/create', icon: CirclePlus },
             { title: 'Manage partners', href: '/admin/partners', icon: SquarePen },
