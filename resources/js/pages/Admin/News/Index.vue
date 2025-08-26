@@ -50,9 +50,9 @@ const publish = (id: number) => {
 }
 
 const breadcrumbs = [
-  { title: 'Dashboard', href: '/dashboard' },
-  { title: 'News', href: '/admin/news' },
-  { title: 'Manage News', href: '/admin/news' },
+    { title: 'Dashboard', href: '/dashboard' },
+    { title: 'News', href: '/admin/news' },
+    { title: 'Manage News', href: '/admin/news' },
 ]
 </script>
 
@@ -63,7 +63,11 @@ const breadcrumbs = [
         <div class="p-6 space-y-6">
             <!-- Header -->
             <div class="flex items-center justify-between">
-                <h1 class="text-2xl font-semibold">Manage News</h1>
+                <div>
+                    <h1 class="text-2xl font-semibold">Manage News</h1>
+                    <p class="text-gray-600 mt-1">Create, edit, and organize your news</p>
+                </div>
+
                 <Link :href="route('admin.news.create')"
                     class="inline-flex items-center px-4 py-2 bg-green-700 text-white rounded hover:bg-green-800">
                 <ArrowLeft class="w-4 h-4 mr-2" />

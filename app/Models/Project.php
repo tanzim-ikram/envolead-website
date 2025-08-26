@@ -204,10 +204,12 @@ class Project extends Model
     // Get icon URL or default
     public function getIconUrlAttribute()
     {
-        if ($this->icon) {
-            return Storage::disk('public')->url($this->icon);
+        if (!$this->icon) {
+            return null;
         }
-        return null;
+
+        // Return a publicly accessible URL for the icon stored on the public disk
+        return Storage::url($this->icon);
     }
 
     // Get status badge class

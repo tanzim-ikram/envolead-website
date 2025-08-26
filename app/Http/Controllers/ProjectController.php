@@ -53,15 +53,35 @@ class ProjectController extends Controller
     // Admin management view - all projects in a table
     public function manage()
     {
-        $projects = Project::with(['parent', 'children'])
-            ->orderBy('parent_id', 'asc')
-            ->orderBy('sort_order', 'asc')
-            ->get();
+        $projects = Project::with(['children:id,parent_id,sort_order'])
+            ->orderBy('parent_id')
+            ->orderBy('sort_order')
+            ->get()
+            ->map(function ($project) {
+                return [
+                    'id' => $project->id,
+                    'project_name' => $project->project_name,
+                    'slug' => $project->slug,
+                    'icon' => $project->icon,
+                    'short_description' => $project->short_description,
+                    'parent_id' => $project->parent_id,
+                    'sort_order' => $project->sort_order,
+                    'status' => $project->status,
+                    'updated_at' => optional($project->updated_at)->toISOString(),
+                    // Keep children lightweight for UI checks (delete-disable and indentation)
+                    'children' => $project->children->map(fn ($c) => [
+                        'id' => $c->id,
+                        'parent_id' => $c->parent_id,
+                        'sort_order' => $c->sort_order,
+                    ])->values(),
+                ];
+            });
 
         return Inertia::render('Admin/Projects/Index', [
             'projects' => $projects,
         ]);
     }
+
 
     // Show create form
     public function create()
@@ -80,45 +100,39 @@ class ProjectController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'project_name' => 'required|string|max:255|unique:projects,project_name',
-            'short_description' => 'nullable|string|max:500',
+            'project_name' => 'required|string|max:255',
+            'short_description' => 'nullable|string',
             'parent_id' => 'nullable|exists:projects,id',
-            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif|max:2048',
             'sort_order' => 'nullable|integer|min:0',
+            'detail_title' => 'nullable|string|max:255',
+            'detail_content' => 'nullable|string',
         ]);
-
-        // Generate unique slug
-        $baseSlug = Str::slug($validated['project_name']);
-        $slug = $baseSlug;
-        $counter = 1;
-
-        while (Project::where('slug', $slug)->exists()) {
-            $slug = $baseSlug . '-' . $counter;
-            $counter++;
-        }
-
-        $validated['slug'] = $slug;
 
         // Handle icon upload
         if ($request->hasFile('icon')) {
-            $iconPath = $request->file('icon')->store('projects/icons', 'public');
-            $validated['icon'] = $iconPath;
+            $validated['icon'] = $request->file('icon')->store('projects/icons', 'public');
         }
 
-        // Set sort order if not provided
+        // Auto assign sort_order if empty
         if (!isset($validated['sort_order'])) {
-            $maxOrder = Project::where('parent_id', $validated['parent_id'] ?? null)
-                ->max('sort_order') ?? 0;
+            $maxOrder = Project::where('parent_id', $validated['parent_id'] ?? null)->max('sort_order') ?? 0;
             $validated['sort_order'] = $maxOrder + 1;
         }
 
-        // Set default status
-        $validated['status'] = 'active';
-
+        // Create project
         $project = Project::create($validated);
 
+        // Create detail if provided
+        if (!empty($validated['detail_title']) || !empty($validated['detail_content'])) {
+            $project->detail()->create([
+                'title' => $validated['detail_title'] ?: $project->project_name,
+                'content' => $validated['detail_content'],
+            ]);
+        }
+
         return redirect()->route('admin.projects.index')
-            ->with('success', 'Project "' . $project->project_name . '" created successfully!');
+            ->with('success', 'Project created successfully!');
     }
 
     // Show edit form
