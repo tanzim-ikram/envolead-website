@@ -7,6 +7,7 @@ use App\Models\ProjectDetail;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
@@ -69,7 +70,7 @@ class ProjectController extends Controller
                     'status' => $project->status,
                     'updated_at' => optional($project->updated_at)->toISOString(),
                     // Keep children lightweight for UI checks (delete-disable and indentation)
-                    'children' => $project->children->map(fn ($c) => [
+                    'children' => $project->children->map(fn($c) => [
                         'id' => $c->id,
                         'parent_id' => $c->parent_id,
                         'sort_order' => $c->sort_order,
@@ -155,13 +156,15 @@ class ProjectController extends Controller
     {
         $validated = $request->validate([
             'project_name' => [
-                'required',
+                'sometimes', // Only validate if present
+                'required', // But if present, it's required
                 'string',
                 'max:255',
                 Rule::unique('projects', 'project_name')->ignore($project->id)
             ],
-            'short_description' => 'nullable|string|max:500',
+            'short_description' => 'sometimes|nullable|string|max:500',
             'parent_id' => [
+                'sometimes',
                 'nullable',
                 'exists:projects,id',
                 function ($attribute, $value, $fail) use ($project) {
@@ -175,13 +178,13 @@ class ProjectController extends Controller
                     }
                 }
             ],
-            'icon' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
-            'sort_order' => 'nullable|integer|min:0',
-            'status' => 'required|in:active,inactive,archived'
+            'icon' => 'sometimes|nullable|image|mimes:jpeg,png,jpg,gif,svg,webp|max:2048',
+            'sort_order' => 'sometimes|required|integer|min:0', // Only validate if present, but required if sent
+            'status' => 'sometimes|in:active,inactive,archived'
         ]);
 
         // Update slug if project name changed
-        if ($validated['project_name'] !== $project->project_name) {
+        if (isset($validated['project_name']) && $validated['project_name'] !== $project->project_name) {
             $baseSlug = Str::slug($validated['project_name']);
             $slug = $baseSlug;
             $counter = 1;
@@ -194,17 +197,18 @@ class ProjectController extends Controller
             $validated['slug'] = $slug;
         }
 
-        // Handle icon upload
+        // Handle icon upload - follow the same approach as store method
         if ($request->hasFile('icon')) {
             // Delete old icon if exists
             if ($project->icon && Storage::disk('public')->exists($project->icon)) {
                 Storage::disk('public')->delete($project->icon);
             }
 
-            $iconPath = $request->file('icon')->store('projects/icons', 'public');
-            $validated['icon'] = $iconPath;
+            $validated['icon'] = $request->file('icon')->store('projects/icons', 'public');
         }
+        // Don't unset icon from validated array - let Laravel handle it
 
+        // Update only the fields that were provided and validated
         $project->update($validated);
 
         return redirect()->route('admin.projects.index')

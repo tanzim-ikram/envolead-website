@@ -20,7 +20,7 @@ const dateLabel = new Date(props.news.published_at).toLocaleString('en-US', {
     </Head>
 
     <div class="max-w-4xl mx-auto px-4 py-10">
-        <Link :href="route('news.index')" class="text-green-700 flex items-center">
+        <Link :href="route('news.index')" class="text-green-700 hover:text-green-900 flex items-center">
         <MoveLeft width="20" height="20" stroke-width="1.5" class="mr-2" />
         Back to News
         </Link>
@@ -37,7 +37,7 @@ const dateLabel = new Date(props.news.published_at).toLocaleString('en-US', {
             </figcaption>
         </figure>
 
-        <!-- ✅ Rich Content styled with Tailwind Typography -->
+        <!-- Rich Content styled with Tailwind Typography -->
         <div class="article-content max-w-none mt-8" v-html="props.news.content"></div>
 
         <!-- Quote stays separate -->
